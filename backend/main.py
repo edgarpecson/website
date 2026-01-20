@@ -4,55 +4,53 @@ from fastapi.middleware.cors import CORSMiddleware
 import boto3
 import os
 import asyncio
+from dotenv import load_dotenv
+
+load_dotenv()  # Loads .env file (AWS keys, region, instance ID)
 
 app = FastAPI(title="Edgar Pecson Portfolio Backend")
 
-# ==================== CORS ====================
-# IMPORTANT: Update this after deployment
-allowed_origins = os.getenv(
-    "CORS_ORIGINS", 
-    "http://localhost:5173,http://localhost:3000"   # Vite + CRA dev
-).split(",")
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,
+    allow_origins=["http://localhost:5173", "http://localhost:3000", "*"],  # Change * to your domain in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# ==================== AWS Clients ====================
-# Do NOT hardcode keys! Use IAM Role (Amplify will provide this automatically)
-ec2 = boto3.client('ec2', region_name=os.getenv("AWS_REGION", "us-west-1"))
-ssm = boto3.client('ssm', region_name=os.getenv("AWS_REGION", "us-west-1"))
+# AWS clients using env vars
+ec2 = boto3.client(
+    'ec2',
+    aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+    aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+    region_name=os.getenv("AWS_REGION", "us-west-1")
+)
+
+ssm = boto3.client(
+    'ssm',
+    aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+    aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+    region_name=os.getenv("AWS_REGION", "us-west-1")
+)
 
 INSTANCE_ID = os.getenv("EC2_INSTANCE_ID")
 
-# Safe allowed commands
+# Safe console commands to run on EC2 via SSM
 ALLOWED_COMMANDS = {
-    "df":        "df -h",
-    "uptime":    "uptime",
-    "free":      "free -h",
-    "top":       "top -b -n 1 | head -15",
-    "ls_home":   "ls -lh /home/oracle",
-    "ls_u01":    "ls -lh /u01/app/oracle",
+    "df": "df -h",
+    "uptime": "uptime",
+    "free": "free -h",
+    "top": "top -b -n 1 | head -15",
+    "ls_home": "ls -lh /home/oracle",
+    "ls_u01": "ls -lh /u01/app/oracle",
 }
 
-# ==================== Routes ====================
-
-@app.get("/")
-async def root():
-    return {
-        "message": "FastAPI backend is running",
-        "ec2_instance_id": INSTANCE_ID or "not set",
-        "region": os.getenv("AWS_REGION", "not set")
-    }
-
+# RMAN backup demo endpoint (simulated)
 @app.get("/api/rman-backup")
 async def rman_backup():
-    return {"message": "RMAN backup started! (Simulated)"}
+    return {"message": "RMAN backup started! (Simulated) Check logs for progress."}
 
+# EC2 status endpoint
 @app.get("/ec2-status")
 async def get_ec2_status():
     try:
@@ -62,57 +60,96 @@ async def get_ec2_status():
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
+# Start EC2 endpoint
 @app.post("/start-ec2")
 async def start_ec2():
     try:
         response = ec2.start_instances(InstanceIds=[INSTANCE_ID])
-        return {"message": "Start command sent", "aws_response": response}
+        return {
+            "message": "Start command sent",
+            "aws_response": {
+                "StartingInstances": response.get("StartingInstances", []),
+                "RequestId": response.get("ResponseMetadata", {}).get("RequestId")
+            }
+        }
     except Exception as e:
         return {"error": str(e)}
 
+# Stop EC2 endpoint
 @app.post("/stop-ec2")
 async def stop_ec2():
     try:
         response = ec2.stop_instances(InstanceIds=[INSTANCE_ID])
-        return {"message": "Stop command sent", "aws_response": response}
+        return {
+            "message": "Stop command sent",
+            "aws_response": {
+                "StoppingInstances": response.get("StoppingInstances", []),
+                "RequestId": response.get("ResponseMetadata", {}).get("RequestId")
+            }
+        }
     except Exception as e:
         return {"error": str(e)}
 
+# Console command endpoint – runs on EC2 via SSM
 @app.get("/console/{cmd_key}")
 async def run_console_command(cmd_key: str):
     if cmd_key not in ALLOWED_COMMANDS:
-        return {"error": f"Command not allowed. Allowed: {list(ALLOWED_COMMANDS.keys())}"}
-
-    if not INSTANCE_ID:
-        return {"error": "EC2_INSTANCE_ID environment variable is not set"}
+        return {"error": "Command not allowed"}
 
     cmd = ALLOWED_COMMANDS[cmd_key]
 
     try:
-        # Quick check if instance is running
-        instance = ec2.describe_instances(InstanceIds=[INSTANCE_ID])
-        state = instance['Reservations'][0]['Instances'][0]['State']['Name']
+        ec2_response = ec2.describe_instances(InstanceIds=[INSTANCE_ID])
+        state = ec2_response['Reservations'][0]['Instances'][0]['State']['Name']
 
-        if state != "running":
-            return {"status": "down", "message": f"Instance is currently {state}"}
+        if state != 'running':
+            return {
+                "status": "down",
+                "message": f"Instance is {state} – console commands unavailable"
+            }
 
-        # Send SSM command (non-blocking)
         response = ssm.send_command(
             InstanceIds=[INSTANCE_ID],
             DocumentName="AWS-RunShellScript",
             Parameters={"commands": [cmd]},
-            TimeoutSeconds=60,
-            Comment="Portfolio console command"
+            TimeoutSeconds=90,
+            Comment="Portfolio console demo",
+            MaxConcurrency="1",
+            MaxErrors="0"
         )
 
         command_id = response['Command']['CommandId']
 
-        return {
-            "status": "sent",
-            "command": cmd,
-            "command_id": command_id,
-            "message": "Command sent successfully. Use /console/result/{command_id} to check output."
-        }
+        invocation = None
+        for _ in range(40):
+            try:
+                invocation = ssm.get_command_invocation(
+                    CommandId=command_id,
+                    InstanceId=INSTANCE_ID,
+                    PluginName="aws:runShellScript"
+                )
+                if invocation['Status'] in ['Success', 'Failed', 'TimedOut']:
+                    break
+            except ssm.exceptions.InvocationDoesNotExist:
+                await asyncio.sleep(5)
+                continue
+            await asyncio.sleep(3)
+
+        if invocation and invocation['Status'] == 'Success':
+            return {
+                "command": cmd,
+                "output": invocation.get('StandardOutputContent', '').strip(),
+                "error": invocation.get('StandardErrorContent', '').strip() or None
+            }
+        else:
+            return {"error": "Command did not complete successfully"}
 
     except Exception as e:
+        error_str = str(e).lower()
+        if "not running" in error_str or "stopped" in error_str:
+            return {"status": "down", "message": "Instance is down or unavailable"}
         return {"error": str(e)}
+
+@app.get("/")
+async def root():
+    return {"message": "FastAPI backend is running"}
