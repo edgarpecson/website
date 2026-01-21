@@ -1,6 +1,6 @@
-/* src/App.css - Full updated version with responsive hamburger menu */
+/* src/App.css - Full responsive version with hamburger menu */
 
-/* Reset & base styles */
+/* Reset & base */
 * {
   box-sizing: border-box;
 }
@@ -13,7 +13,7 @@ body {
   line-height: 1.6;
 }
 
-/* Fixed navigation bar */
+/* Navigation */
 nav {
   position: fixed;
   top: 0;
@@ -36,34 +36,34 @@ nav {
 }
 
 /* Desktop links */
-.links.desktop-links {
+.desktop-links {
   display: flex;
   gap: 32px;
   font-weight: 500;
 }
 
-.links a {
+.desktop-links a {
   text-decoration: none;
   color: #374151;
   transition: color 0.2s ease;
 }
 
-.links a:hover {
+.desktop-links a:hover {
   color: #2563eb;
 }
 
-/* Hamburger button - hidden by default (desktop) */
+/* Hamburger button */
 .hamburger {
-  display: none;
+  display: none; /* hidden on desktop */
   background: none;
   border: none;
   cursor: pointer;
   width: 40px;
   height: 40px;
   padding: 0;
+  z-index: 1100;
 }
 
-/* Hamburger lines */
 .hamburger-lines {
   display: flex;
   flex-direction: column;
@@ -92,10 +92,10 @@ nav {
   transform: rotate(-45deg) translate(7px, -6px);
 }
 
-/* Mobile menu dropdown - centered */
+/* Mobile menu */
 .mobile-menu {
   position: fixed;
-  top: 70px; /* adjust if your nav height changes */
+  top: 70px; /* below nav height - adjust if needed */
   left: 0;
   width: 100%;
   background: white;
@@ -103,8 +103,7 @@ nav {
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   display: flex;
   flex-direction: column;
-  align-items: center;           /* centers links horizontally */
-  justify-content: flex-start;   /* starts links from top */
+  align-items: center;
   gap: 1.5rem;
   max-height: 0;
   overflow: hidden;
@@ -115,40 +114,38 @@ nav {
 }
 
 .mobile-menu.open {
-  max-height: 500px; /* enough for 4 links + padding */
+  max-height: 500px;
   opacity: 1;
   padding: 2rem 1rem;
 }
 
 .mobile-menu a {
   display: block;
-  padding: 1rem 2rem;
+  padding: 1rem 0;
   font-size: 1.25rem;
   font-weight: 500;
   color: #374151;
   text-decoration: none;
-  transition: color 0.2s, background 0.2s;
+  transition: color 0.2s;
   width: 100%;
   max-width: 300px;
-  border-radius: 8px;
 }
 
 .mobile-menu a:hover {
   color: #2563eb;
-  background: rgba(37, 99, 235, 0.05);
 }
 
 /* Responsive breakpoint */
 @media (max-width: 768px) {
   .desktop-links {
-    display: none;
+    display: none !important;
   }
   .hamburger {
-    display: flex;
+    display: flex !important;
   }
 
   .page-container {
-    padding: 100px 5% 60px; /* adjusted for fixed nav + mobile menu */
+    padding-top: 100px; /* space for fixed nav */
   }
 
   .hero {
@@ -180,7 +177,7 @@ nav {
   }
 }
 
-/* Rest of your original styles (unchanged) */
+/* Rest of your original styles */
 .page-container {
   padding: 120px 5% 60px;
   max-width: 1200px;
