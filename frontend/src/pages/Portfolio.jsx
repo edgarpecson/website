@@ -8,10 +8,10 @@ export default function Portfolio({
   handleStopEC2,
   ec2Log,
   handleClearLog,
-  BASE_URL   // ← NEW: receive from App.jsx
+  BASE_URL
 }) {
   const logRef = useRef(null);
-  const [consoleData, setConsoleData] = useState({}); // outputs by command key
+  const [consoleData, setConsoleData] = useState({});
   const [activeCmd, setActiveCmd] = useState('df');
 
   // Auto-scroll EC2 log to bottom
@@ -21,7 +21,7 @@ export default function Portfolio({
     }
   }, [ec2Log]);
 
-  // Fetch console output when user switches command
+  // Fetch console output when active command changes
   useEffect(() => {
     const fetchConsole = async () => {
       try {
@@ -47,7 +47,7 @@ export default function Portfolio({
     fetchConsole();
   }, [activeCmd, BASE_URL]);
 
-  // Safe console commands (must match backend ALLOWED_COMMANDS)
+  // Safe console commands (must match backend)
   const consoleCommands = [
     { key: 'df', label: 'df -h (Disk Usage)' },
     { key: 'uptime', label: 'uptime' },
@@ -59,11 +59,15 @@ export default function Portfolio({
   return (
     <div className="page-container">
       <h1>Portfolio</h1>
-      <p style={{ marginBottom: '32px' }}>
+      <p style={{ marginBottom: 'clamp(24px, 5vw, 48px)' }}>
         A selection of technical projects and demonstrations showcasing database automation, AWS cloud infrastructure, and full-stack development.
       </p>
 
-      <ul style={{ marginBottom: '48px', lineHeight: 1.8 }}>
+      <ul style={{ 
+        marginBottom: 'clamp(32px, 6vw, 48px)', 
+        lineHeight: 1.8,
+        paddingLeft: '1.5rem'
+      }}>
         <li><strong>AWS EC2 Automation – Oracle 19c Database Instance Control</strong> (interactive demo below)</li>
         <li>Full-Stack Applications using React + FastAPI</li>
         <li>Python-based Database Backup & Recovery Scripts (RMAN integration)</li>
@@ -112,7 +116,7 @@ export default function Portfolio({
           </div>
 
           {ec2Log.length === 0 ? (
-            <p style={{ color: '#6b7280', fontStyle: 'italic', textAlign: 'left' }}>
+            <p style={{ color: '#6b7280', fontStyle: 'italic', textAlign: 'center' }}>
               No activity yet...
             </p>
           ) : (
@@ -120,10 +124,11 @@ export default function Portfolio({
               <p
                 key={i}
                 style={{
-                  margin: '4px 0',
-                  padding: '0 8px',
+                  margin: '6px 0',
+                  padding: '4px 8px',
                   fontFamily: "'Courier New', Courier, monospace",
-                  whiteSpace: 'pre',
+                  whiteSpace: 'pre-wrap',
+                  wordBreak: 'break-word',
                   textAlign: 'left',
                   color: entry.includes('AWS confirmed') ? '#006699' :
                          entry.includes('failed') || entry.includes('error') ? '#dc3545' :
@@ -138,73 +143,55 @@ export default function Portfolio({
         </div>
 
         {isLoadingEC2 && (
-          <p className="ec2-loading">Command sent — watching for status change...</p>
+          <p className="ec2-loading" style={{ textAlign: 'center' }}>
+            Command sent — watching for status change...
+          </p>
         )}
       </div>
 
       {/* EC2 Instance Status Console */}
-      <div className="console-card" style={{ marginTop: '60px' }}>
+      <div className="console-card">
         <h2>EC2 Instance Status Console</h2>
-        <p style={{ marginBottom: '16px', color: '#6b7280' }}>
+        <p style={{ marginBottom: 'clamp(12px, 4vw, 16px)', color: '#6b7280', textAlign: 'center' }}>
           Real-time read-only output from safe system commands running directly on the Oracle 19c EC2 instance (refreshes every 30 seconds).
         </p>
 
-        <div style={{ marginBottom: '20px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+        <div className="console-buttons">
           {consoleCommands.map(cmd => (
             <button
               key={cmd.key}
               onClick={() => setActiveCmd(cmd.key)}
-              style={{
-                padding: '8px 16px',
-                background: activeCmd === cmd.key ? '#006699' : '#e5e7eb',
-                color: activeCmd === cmd.key ? 'white' : '#111827',
-                border: 'none',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontSize: '0.95rem'
-              }}
+              className={`console-btn ${activeCmd === cmd.key ? 'active' : ''}`}
             >
               {cmd.label}
             </button>
           ))}
         </div>
 
-        <div style={{
-          background: '#0d1117',
-          color: consoleData[activeCmd]?.status === 'down' ? '#ff6b6b' : '#c9d1d9',
-          fontFamily: "'Courier New', Courier, monospace",
-          padding: '16px',
-          borderRadius: '8px',
-          maxHeight: '400px',
-          overflowY: 'auto',
-          whiteSpace: 'pre-wrap',
-          fontSize: '0.95rem',
-          lineHeight: 1.4,
-          border: '1px solid #30363d'
-        }}>
-          <div style={{ color: '#58a6ff', marginBottom: '8px' }}>
+        <div className="console-output">
+          <div className="console-prompt">
             $ {consoleCommands.find(c => c.key === activeCmd)?.label || activeCmd}
           </div>
 
           {consoleData[activeCmd] ? (
             <>
               {consoleData[activeCmd].status === 'down' ? (
-                <div style={{ color: '#ff6b6b', fontWeight: 'bold' }}>
+                <div className="console-error">
                   {consoleData[activeCmd].message || 'Instance is down or unavailable'}
                 </div>
               ) : (
                 <>
                   {consoleData[activeCmd].output ? (
-                    <div style={{ whiteSpace: 'pre' }}>{consoleData[activeCmd].output}</div>
+                    <div className="console-text">{consoleData[activeCmd].output}</div>
                   ) : null}
                   {consoleData[activeCmd].error ? (
-                    <div style={{ color: '#f85149' }}>{consoleData[activeCmd].error}</div>
+                    <div className="console-error">{consoleData[activeCmd].error}</div>
                   ) : null}
                 </>
               )}
             </>
           ) : (
-            'Loading EC2 instance status...'
+            <div className="console-loading">Loading EC2 instance status...</div>
           )}
         </div>
       </div>
