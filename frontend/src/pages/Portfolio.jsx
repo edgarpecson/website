@@ -14,14 +14,14 @@ export default function Portfolio({
   const [consoleData, setConsoleData] = useState({});
   const [activeCmd, setActiveCmd] = useState('df');
 
-  // Auto-scroll EC2 log to bottom
+  // Auto-scroll log to bottom
   useEffect(() => {
     if (logRef.current) {
       logRef.current.scrollTop = logRef.current.scrollHeight;
     }
   }, [ec2Log]);
 
-  // Fetch console output when active command changes
+  // Fetch console output on command change
   useEffect(() => {
     const fetchConsole = async () => {
       try {
@@ -47,7 +47,6 @@ export default function Portfolio({
     fetchConsole();
   }, [activeCmd, BASE_URL]);
 
-  // Safe console commands (must match backend)
   const consoleCommands = [
     { key: 'df', label: 'df -h (Disk Usage)' },
     { key: 'uptime', label: 'uptime' },
@@ -58,15 +57,28 @@ export default function Portfolio({
 
   return (
     <div className="page-container">
-      <h1>Portfolio</h1>
-      <p style={{ marginBottom: 'clamp(24px, 5vw, 48px)' }}>
+      <h1 style={{ fontSize: 'clamp(2rem, 7vw, 3rem)', marginBottom: '1rem', textAlign: 'center' }}>
+        Portfolio
+      </h1>
+
+      <p style={{ 
+        marginBottom: 'clamp(1.5rem, 5vw, 2.5rem)', 
+        fontSize: 'clamp(1rem, 4vw, 1.1rem)', 
+        textAlign: 'center', 
+        maxWidth: '800px', 
+        marginLeft: 'auto', 
+        marginRight: 'auto' 
+      }}>
         A selection of technical projects and demonstrations showcasing database automation, AWS cloud infrastructure, and full-stack development.
       </p>
 
       <ul style={{ 
-        marginBottom: 'clamp(32px, 6vw, 48px)', 
-        lineHeight: 1.8,
-        paddingLeft: '1.5rem'
+        marginBottom: 'clamp(2rem, 6vw, 3rem)', 
+        lineHeight: 1.8, 
+        paddingLeft: '1.5rem', 
+        maxWidth: '800px', 
+        marginLeft: 'auto', 
+        marginRight: 'auto' 
       }}>
         <li><strong>AWS EC2 Automation – Oracle 19c Database Instance Control</strong> (interactive demo below)</li>
         <li>Full-Stack Applications using React + FastAPI</li>
@@ -77,9 +89,11 @@ export default function Portfolio({
 
       {/* Oracle 19c Demo Instance Control */}
       <div className="ec2-card">
-        <h2>Oracle 19c Demo Instance Control</h2>
+        <h2 style={{ fontSize: 'clamp(1.6rem, 5vw, 2rem)', marginBottom: '1.5rem', textAlign: 'center' }}>
+          Oracle 19c Demo Instance Control
+        </h2>
 
-        <p className={`ec2-status status-${ec2Status}`}>
+        <p className={`ec2-status status-${ec2Status}`} style={{ fontSize: 'clamp(1.1rem, 4vw, 1.3rem)', marginBottom: '1.5rem', textAlign: 'center' }}>
           Status: {ec2Status.charAt(0).toUpperCase() + ec2Status.slice(1)}
         </p>
 
@@ -88,13 +102,19 @@ export default function Portfolio({
             className="cta-primary"
             onClick={handleStartEC2}
             disabled={ec2Status === 'running' || isLoadingEC2 || ec2Status === 'pending'}
+            style={{ width: '100%', maxWidth: '300px', marginBottom: '1rem' }}
           >
             {isLoadingEC2 ? 'Starting...' : 'Start Instance'}
           </button>
 
           <button
             className="cta-primary"
-            style={{ background: '#dc3545', boxShadow: '0 4px 12px rgba(220,53,69,0.3)' }}
+            style={{ 
+              background: '#dc3545', 
+              boxShadow: '0 4px 12px rgba(220,53,69,0.3)',
+              width: '100%',
+              maxWidth: '300px'
+            }}
             onClick={handleStopEC2}
             disabled={ec2Status === 'stopped' || isLoadingEC2 || ec2Status === 'stopping'}
           >
@@ -105,11 +125,12 @@ export default function Portfolio({
         {/* Instance Activity Log */}
         <div className="ec2-log" ref={logRef}>
           <div className="ec2-log-header">
-            <h4>Instance Activity Log</h4>
+            <h4 style={{ fontSize: 'clamp(1.1rem, 4vw, 1.25rem)' }}>Instance Activity Log</h4>
             <button
               className="ec2-log-clear"
               onClick={handleClearLog}
               disabled={ec2Log.length === 0}
+              style={{ fontSize: '0.9rem' }}
             >
               Clear Log
             </button>
@@ -133,7 +154,8 @@ export default function Portfolio({
                   color: entry.includes('AWS confirmed') ? '#006699' :
                          entry.includes('failed') || entry.includes('error') ? '#dc3545' :
                          entry.includes('AWS Request ID') ? '#4b5563' :
-                         '#0f0f0f'
+                         '#0f0f0f',
+                  fontSize: 'clamp(0.85rem, 3vw, 0.95rem)'
                 }}
               >
                 {entry}
@@ -143,25 +165,39 @@ export default function Portfolio({
         </div>
 
         {isLoadingEC2 && (
-          <p className="ec2-loading" style={{ textAlign: 'center' }}>
+          <p className="ec2-loading" style={{ textAlign: 'center', marginTop: '1rem' }}>
             Command sent — watching for status change...
           </p>
         )}
       </div>
 
       {/* EC2 Instance Status Console */}
-      <div className="console-card">
-        <h2>EC2 Instance Status Console</h2>
-        <p style={{ marginBottom: 'clamp(12px, 4vw, 16px)', color: '#6b7280', textAlign: 'center' }}>
+      <div className="console-card" style={{ marginTop: 'clamp(40px, 8vw, 60px)' }}>
+        <h2 style={{ fontSize: 'clamp(1.6rem, 5vw, 2rem)', marginBottom: '1rem', textAlign: 'center' }}>
+          EC2 Instance Status Console
+        </h2>
+
+        <p style={{ marginBottom: 'clamp(12px, 4vw, 16px)', color: '#6b7280', textAlign: 'center', fontSize: 'clamp(0.95rem, 3vw, 1rem)' }}>
           Real-time read-only output from safe system commands running directly on the Oracle 19c EC2 instance (refreshes every 30 seconds).
         </p>
 
-        <div className="console-buttons">
+        <div className="console-buttons" style={{ marginBottom: 'clamp(16px, 4vw, 20px)' }}>
           {consoleCommands.map(cmd => (
             <button
               key={cmd.key}
               onClick={() => setActiveCmd(cmd.key)}
-              className={`console-btn ${activeCmd === cmd.key ? 'active' : ''}`}
+              style={{
+                padding: 'clamp(8px, 2vw, 12px) clamp(12px, 3vw, 20px)',
+                background: activeCmd === cmd.key ? '#006699' : '#e5e7eb',
+                color: activeCmd === cmd.key ? 'white' : '#111827',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: 'clamp(0.85rem, 3vw, 0.95rem)',
+                flex: '1 1 45%',
+                maxWidth: '220px',
+                minWidth: '140px'
+              }}
             >
               {cmd.label}
             </button>

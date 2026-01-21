@@ -386,3 +386,78 @@ footer {
     font-size: 0.85rem;
   }
 }
+
+/* Portfolio-specific responsive styles */
+.page-container {
+  padding: clamp(100px, 15vh, 140px) 5% 60px;
+}
+
+.ec2-card, .console-card {
+  padding: clamp(20px, 5vw, 40px);
+  margin-bottom: clamp(40px, 8vw, 60px);
+}
+
+.ec2-card h2, .console-card h2 {
+  font-size: clamp(1.6rem, 5vw, 2rem);
+  text-align: center;
+}
+
+.ec2-status {
+  font-size: clamp(1.2rem, 4vw, 1.4rem);
+  text-align: center;
+}
+
+.ec2-buttons {
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.ec2-log {
+  max-height: 50vh;
+  font-size: clamp(0.85rem, 3vw, 0.95rem);
+}
+
+.ec2-log-header {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.console-buttons {
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(8px, 2vw, 12px);
+}
+
+.console-btn {
+  flex: 1 1 45%;
+  max-width: 220px;
+  min-width: 140px;
+  font-size: clamp(0.85rem, 3vw, 0.95rem);
+}
+
+.console-output {
+  max-height: 60vh;
+  font-size: clamp(0.85rem, 3vw, 0.95rem);
+  padding: clamp(12px, 3vw, 16px);
+}
+
+@media (max-width: 480px) {
+  .page-container {
+    padding: 90px 5% 40px;
+  }
+
+  .ec2-card, .console-card {
+    padding: 20px 15px;
+  }
+
+  .ec2-buttons button, .console-btn {
+    width: 100%;
+    max-width: none;
+  }
+
+  .ec2-log, .console-output {
+    max-height: 40vh;
+  }
+}
