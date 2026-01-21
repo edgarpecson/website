@@ -13,7 +13,7 @@ function App() {
   const [isLoadingEC2, setIsLoadingEC2] = useState(false);
   const [ec2Log, setEc2Log] = useState([]);
 
-  // Mobile menu state
+  // Hamburger menu state
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
@@ -27,7 +27,9 @@ function App() {
 
   const addLog = (message) => {
     const timestamp = new Date().toLocaleTimeString([], { 
-      hour: '2-digit', minute: '2-digit', second: '2-digit' 
+      hour: '2-digit', 
+      minute: '2-digit', 
+      second: '2-digit' 
     });
     setEc2Log(prev => [...prev, `${timestamp} - ${message}`]);
   };
@@ -41,14 +43,27 @@ function App() {
 
         if (newStatus !== ec2Status) {
           let logMessage = '';
+
           switch (newStatus) {
-            case 'pending': logMessage = 'Instance is starting up...'; break;
-            case 'running': logMessage = 'Instance is now running'; break;
-            case 'stopping': logMessage = 'Instance is shutting down...'; break;
-            case 'stopped': logMessage = 'Instance is now stopped'; break;
-            case 'error': logMessage = 'Error fetching real EC2 status'; break;
-            default: logMessage = `Status changed to: ${newStatus}`;
+            case 'pending':
+              logMessage = 'Instance is starting up...';
+              break;
+            case 'running':
+              logMessage = 'Instance is now running';
+              break;
+            case 'stopping':
+              logMessage = 'Instance is shutting down...';
+              break;
+            case 'stopped':
+              logMessage = 'Instance is now stopped';
+              break;
+            case 'error':
+              logMessage = 'Error fetching real EC2 status';
+              break;
+            default:
+              logMessage = `Status changed to: ${newStatus}`;
           }
+
           addLog(logMessage);
           setEc2Status(newStatus);
         }
@@ -112,7 +127,7 @@ function App() {
       <nav>
         <div className="logo">Edgar Pecson</div>
 
-        {/* Desktop links */}
+        {/* Desktop links - hidden on mobile */}
         <div className="links desktop-links">
           <Link to="/">Home</Link>
           <Link to="/about">About</Link>
@@ -120,8 +135,12 @@ function App() {
           <Link to="/contact">Contact</Link>
         </div>
 
-        {/* Hamburger */}
-        <button className="hamburger" onClick={toggleMenu} aria-label="Toggle menu">
+        {/* Hamburger button - shown only on mobile */}
+        <button 
+          className="hamburger"
+          onClick={toggleMenu}
+          aria-label="Toggle menu"
+        >
           <div className={`hamburger-lines ${isMenuOpen ? 'open' : ''}`}>
             <span></span>
             <span></span>
@@ -130,7 +149,7 @@ function App() {
         </button>
       </nav>
 
-      {/* Mobile menu */}
+      {/* Mobile menu - centered dropdown */}
       <div className={`mobile-menu ${isMenuOpen ? 'open' : ''}`}>
         <Link to="/" onClick={closeMenu}>Home</Link>
         <Link to="/about" onClick={closeMenu}>About</Link>
@@ -140,9 +159,31 @@ function App() {
 
       <div className="page-container">
         <Routes>
-          <Route path="/" element={<Home handleRMAN={handleRMAN} isLoadingRMAN={isLoadingRMAN} output={output} />} />
+          <Route
+            path="/"
+            element={
+              <Home
+                handleRMAN={handleRMAN}
+                isLoadingRMAN={isLoadingRMAN}
+                output={output}
+              />
+            }
+          />
           <Route path="/about" element={<About />} />
-          <Route path="/portfolio" element={<Portfolio ec2Status={ec2Status} isLoadingEC2={isLoadingEC2} handleStartEC2={handleStartEC2} handleStopEC2={handleStopEC2} ec2Log={ec2Log} handleClearLog={handleClearLog} BASE_URL={BASE_URL} />} />
+          <Route
+            path="/portfolio"
+            element={
+              <Portfolio
+                ec2Status={ec2Status}
+                isLoadingEC2={isLoadingEC2}
+                handleStartEC2={handleStartEC2}
+                handleStopEC2={handleStopEC2}
+                ec2Log={ec2Log}
+                handleClearLog={handleClearLog}
+                BASE_URL={BASE_URL}
+              />
+            }
+          />
           <Route path="/contact" element={<Contact />} />
         </Routes>
       </div>

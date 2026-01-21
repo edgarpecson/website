@@ -1,6 +1,6 @@
-/* src/App.css - Full responsive version with Portfolio fixes */
+/* src/App.css - Full responsive version with hamburger & Portfolio fixes */
 
-/* Reset & base */
+/* Reset & base styles */
 * {
   box-sizing: border-box;
 }
@@ -13,7 +13,7 @@ body {
   line-height: 1.6;
 }
 
-/* Navigation */
+/* Navigation - fixed top bar */
 nav {
   position: fixed;
   top: 0;
@@ -35,23 +35,24 @@ nav {
   color: #111827;
 }
 
-.links.desktop-links {
+/* Desktop navigation links */
+.desktop-links {
   display: flex;
   gap: clamp(1.5rem, 4vw, 2.5rem);
   font-weight: 500;
 }
 
-.links a {
+.desktop-links a {
   text-decoration: none;
   color: #374151;
   transition: color 0.2s ease;
 }
 
-.links a:hover {
+.desktop-links a:hover {
   color: #2563eb;
 }
 
-/* Hamburger button */
+/* Hamburger button - hidden by default */
 .hamburger {
   display: none;
   background: none;
@@ -60,9 +61,10 @@ nav {
   width: 40px;
   height: 40px;
   padding: 0;
+  align-self: center;
 }
 
-/* Hamburger lines */
+/* Hamburger lines animation */
 .hamburger-lines {
   display: flex;
   flex-direction: column;
@@ -91,10 +93,10 @@ nav {
   transform: rotate(-45deg) translate(7px, -6px);
 }
 
-/* Mobile menu */
+/* Mobile menu - centered dropdown */
 .mobile-menu {
   position: fixed;
-  top: 70px;
+  top: 70px; /* below nav height - adjust if nav taller */
   left: 0;
   width: 100%;
   background: white;
@@ -134,17 +136,17 @@ nav {
   color: #2563eb;
 }
 
-/* Responsive breakpoint */
+/* Responsive breakpoint - show hamburger, hide desktop */
 @media (max-width: 768px) {
   .desktop-links {
-    display: none;
+    display: none !important;
   }
   .hamburger {
-    display: flex;
+    display: flex !important;
   }
 
   .page-container {
-    padding: clamp(90px, 15vh, 120px) 5% 60px;
+    padding-top: clamp(90px, 15vh, 120px);
   }
 }
 
@@ -155,7 +157,7 @@ nav {
   margin: 0 auto;
 }
 
-/* Hero section responsive */
+/* Hero section - responsive */
 .hero {
   padding: clamp(100px, 15vh, 140px) 5% 80px;
   text-align: center;
@@ -193,8 +195,8 @@ nav {
   }
 }
 
-/* Portfolio / EC2 Card - fully responsive */
-.ec2-card {
+/* EC2 & Console cards - responsive */
+.ec2-card, .console-card {
   background: #ffffff;
   border-radius: 12px;
   padding: clamp(20px, 5vw, 40px);
@@ -203,7 +205,7 @@ nav {
   margin-bottom: clamp(40px, 8vw, 60px);
 }
 
-.ec2-card h2 {
+.ec2-card h2, .console-card h2 {
   font-size: clamp(1.6rem, 5vw, 2rem);
   margin-bottom: 1rem;
   text-align: center;
@@ -263,30 +265,14 @@ nav {
   opacity: 0.6;
 }
 
-/* Console Card - responsive */
-.console-card {
-  background: #ffffff;
-  border-radius: 12px;
-  padding: clamp(20px, 5vw, 40px);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-  border: 1px solid #e5e7eb;
-  margin-bottom: clamp(40px, 8vw, 60px);
-}
-
-.console-card h2 {
-  font-size: clamp(1.6rem, 5vw, 2rem);
-  margin-bottom: 1rem;
-  text-align: center;
-}
-
+/* Console section */
 .console-card p {
   text-align: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: clamp(12px, 4vw, 16px);
   color: #6b7280;
   font-size: clamp(0.95rem, 3vw, 1rem);
 }
 
-/* Console command buttons */
 .console-buttons {
   display: flex;
   flex-wrap: wrap;
@@ -304,6 +290,9 @@ nav {
   cursor: pointer;
   font-size: clamp(0.85rem, 3vw, 0.95rem);
   transition: all 0.2s;
+  flex: 1 1 45%;
+  max-width: 220px;
+  min-width: 140px;
 }
 
 .console-btn.active {
@@ -315,7 +304,6 @@ nav {
   background: #d1d5db;
 }
 
-/* Console output box */
 .console-output {
   background: #0d1117;
   color: #c9d1d9;
@@ -362,87 +350,7 @@ footer {
   border-top: 1px solid #e5e7eb;
 }
 
-/* Extra small screens */
-@media (max-width: 480px) {
-  .page-container {
-    padding: 90px 5% 40px;
-  }
-
-  .ec2-card, .console-card {
-    padding: 20px 15px;
-  }
-
-  .ec2-buttons button, .cta-buttons button {
-    width: 100%;
-    max-width: none;
-  }
-
-  .console-card h2 {
-    font-size: clamp(1.4rem, 6vw, 1.8rem);
-  }
-
-  .ec2-log {
-    max-height: 40vh;
-    font-size: 0.85rem;
-  }
-}
-
-/* Portfolio-specific responsive styles */
-.page-container {
-  padding: clamp(100px, 15vh, 140px) 5% 60px;
-}
-
-.ec2-card, .console-card {
-  padding: clamp(20px, 5vw, 40px);
-  margin-bottom: clamp(40px, 8vw, 60px);
-}
-
-.ec2-card h2, .console-card h2 {
-  font-size: clamp(1.6rem, 5vw, 2rem);
-  text-align: center;
-}
-
-.ec2-status {
-  font-size: clamp(1.2rem, 4vw, 1.4rem);
-  text-align: center;
-}
-
-.ec2-buttons {
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-}
-
-.ec2-log {
-  max-height: 50vh;
-  font-size: clamp(0.85rem, 3vw, 0.95rem);
-}
-
-.ec2-log-header {
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 1rem;
-}
-
-.console-buttons {
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: clamp(8px, 2vw, 12px);
-}
-
-.console-btn {
-  flex: 1 1 45%;
-  max-width: 220px;
-  min-width: 140px;
-  font-size: clamp(0.85rem, 3vw, 0.95rem);
-}
-
-.console-output {
-  max-height: 60vh;
-  font-size: clamp(0.85rem, 3vw, 0.95rem);
-  padding: clamp(12px, 3vw, 16px);
-}
-
+/* Very small screens */
 @media (max-width: 480px) {
   .page-container {
     padding: 90px 5% 40px;
