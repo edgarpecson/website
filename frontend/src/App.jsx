@@ -13,10 +13,21 @@ function App() {
   const [isLoadingEC2, setIsLoadingEC2] = useState(false);
   const [ec2Log, setEc2Log] = useState([]);
 
-  const BASE_URL = 'http://localhost:8000';
+  // Use Vite environment variable (set in .env or Render dashboard)
+  // Falls back to localhost for local development
+  const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
+  // Optional: helpful for debugging which URL is actually being used
+  useEffect(() => {
+    console.log('API Base URL:', BASE_URL);
+  }, []);
 
   const addLog = (message) => {
-    const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const timestamp = new Date().toLocaleTimeString([], { 
+      hour: '2-digit', 
+      minute: '2-digit', 
+      second: '2-digit' 
+    });
     setEc2Log(prev => [...prev, `${timestamp} - ${message}`]);
   };
 
@@ -133,18 +144,19 @@ function App() {
         />
         <Route path="/about" element={<About />} />
         <Route
-          path="/portfolio"
-          element={
-            <Portfolio
-              ec2Status={ec2Status}
-              isLoadingEC2={isLoadingEC2}
-              handleStartEC2={handleStartEC2}
-              handleStopEC2={handleStopEC2}
-              ec2Log={ec2Log}
-              handleClearLog={handleClearLog}
-            />
-          }
-        />
+  path="/portfolio"
+  element={
+    <Portfolio
+      ec2Status={ec2Status}
+      isLoadingEC2={isLoadingEC2}
+      handleStartEC2={handleStartEC2}
+      handleStopEC2={handleStopEC2}
+      ec2Log={ec2Log}
+      handleClearLog={handleClearLog}
+      BASE_URL={BASE_URL}   // ← ADD THIS LINE
+    />
+  }
+/>
         <Route path="/contact" element={<Contact />} />
       </Routes>
 

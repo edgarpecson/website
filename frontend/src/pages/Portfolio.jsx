@@ -7,13 +7,12 @@ export default function Portfolio({
   handleStartEC2,
   handleStopEC2,
   ec2Log,
-  handleClearLog
+  handleClearLog,
+  BASE_URL   // ← NEW: receive from App.jsx
 }) {
   const logRef = useRef(null);
   const [consoleData, setConsoleData] = useState({}); // outputs by command key
   const [activeCmd, setActiveCmd] = useState('df');
-
-  const BASE_URL = 'http://localhost:8000'; // change to live backend URL when deployed
 
   // Auto-scroll EC2 log to bottom
   useEffect(() => {
@@ -21,87 +20,6 @@ export default function Portfolio({
       logRef.current.scrollTop = logRef.current.scrollHeight;
     }
   }, [ec2Log]);
-
-  // Poll EC2 status & log real AWS state changes + fetch EC2 console output on state change
-  useEffect(() => {
-    const fetchStatusAndConsole = async () => {
-      try {
-        // 1. Fetch current EC2 status
-        const statusRes = await fetch(`${BASE_URL}/ec2-status`);
-        const statusData = await statusRes.json();
-        const newStatus = statusData.status || 'error';
-
-        // Log every real AWS status change
-        if (newStatus !== ec2Status) {
-          let logMessage = '';
-
-          switch (newStatus) {
-            case 'pending':
-              logMessage = 'Instance is starting up...';
-              break;
-            case 'running':
-              logMessage = 'Instance is now running';
-              break;
-            case 'stopping':
-              logMessage = 'Instance is shutting down...';
-              break;
-            case 'stopped':
-              logMessage = 'Instance is now stopped';
-              break;
-            case 'error':
-              logMessage = 'Error fetching real EC2 status';
-              break;
-            default:
-              logMessage = `Status changed to: ${newStatus}`;
-          }
-
-          // Add AWS state change to log
-          const timestamp = new Date().toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit'
-          });
-          setEc2Log(prev => [...prev, `${timestamp} - ${logMessage}`]);
-
-          setEc2Status(newStatus);
-
-          // 2. If instance just started (now running), fetch console output from EC2
-          if (newStatus === 'running') {
-            try {
-              const consoleRes = await fetch(`${BASE_URL}/console/df`);
-              const consoleData = await consoleRes.json();
-
-              if (consoleData.output) {
-                // Add real EC2 df -h output to log
-                const lines = consoleData.output.split('\n');
-                lines.forEach(line => {
-                  if (line.trim()) {
-                    setEc2Log(prev => [...prev, `${timestamp} - EC2 DF: ${line.trim()}`]);
-                  }
-                });
-              } else if (consoleData.error) {
-                setEc2Log(prev => [...prev, `${timestamp} - EC2 DF error: ${consoleData.error}`]);
-              }
-            } catch (consoleErr) {
-              setEc2Log(prev => [...prev, `${timestamp} - Failed to fetch EC2 console: ${consoleErr.message}`]);
-            }
-          }
-        }
-      } catch (err) {
-        const timestamp = new Date().toLocaleTimeString([], {
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit'
-        });
-        setEc2Log(prev => [...prev, `${timestamp} - Connection error`]);
-        setEc2Status('error');
-      }
-    };
-
-    fetchStatusAndConsole(); // initial fetch
-    const interval = setInterval(fetchStatusAndConsole, 8000); // 8-second polling
-    return () => clearInterval(interval);
-  }, [ec2Status, BASE_URL]);
 
   // Fetch console output when user switches command
   useEffect(() => {
@@ -277,7 +195,7 @@ export default function Portfolio({
               ) : (
                 <>
                   {consoleData[activeCmd].output ? (
-                    <div>{consoleData[activeCmd].output}</div>
+                    <div style={{ whiteSpace: 'pre' }}>{consoleData[activeCmd].output}</div>
                   ) : null}
                   {consoleData[activeCmd].error ? (
                     <div style={{ color: '#f85149' }}>{consoleData[activeCmd].error}</div>
