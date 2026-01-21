@@ -13,7 +13,7 @@ function App() {
   const [isLoadingEC2, setIsLoadingEC2] = useState(false);
   const [ec2Log, setEc2Log] = useState([]);
 
-  // Hamburger menu state
+  // Mobile menu state
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
@@ -27,9 +27,7 @@ function App() {
 
   const addLog = (message) => {
     const timestamp = new Date().toLocaleTimeString([], { 
-      hour: '2-digit', 
-      minute: '2-digit', 
-      second: '2-digit' 
+      hour: '2-digit', minute: '2-digit', second: '2-digit' 
     });
     setEc2Log(prev => [...prev, `${timestamp} - ${message}`]);
   };
@@ -122,7 +120,7 @@ function App() {
           <Link to="/contact">Contact</Link>
         </div>
 
-        {/* Hamburger button */}
+        {/* Hamburger */}
         <button className="hamburger" onClick={toggleMenu} aria-label="Toggle menu">
           <div className={`hamburger-lines ${isMenuOpen ? 'open' : ''}`}>
             <span></span>
