@@ -103,12 +103,19 @@ async def run_console_command(cmd_key: str):
         state = ec2_response['Reservations'][0]['Instances'][0]['State']['Name']
 
         if state != 'running':
-            message = "Instance is down or unavailable" if state in ['stopped', 'stopping'] else "Loading EC2 instance status..."
-            return {
-                "status": "down",
-                "message": message
-            }
+            if state == 'pending':
+                return {
+                    "status": "down",
+                    "message": "Loading EC2 instance status..."
+                }
+            else:
+                message = f"Instance is {state} – console commands unavailable"
+                return {
+                    "status": "down",
+                    "message": message
+                }
 
+        # Send command if running
         response = ssm.send_command(
             InstanceIds=[INSTANCE_ID],
             DocumentName="AWS-RunShellScript",
@@ -147,8 +154,8 @@ async def run_console_command(cmd_key: str):
 
     except Exception as e:
         error_str = str(e).lower()
-        if "not running" in error_str or "stopped" in error_str:
-            return {"status": "down", "message": "Instance is down or unavailable"}
+        if "invalidinstanceid" in error_str or "not running" in error_str or "stopped" in error_str:
+            return {"status": "down", "message": "Loading EC2 instance status..."}
         return {"error": str(e)}
 
 @app.get("/")
