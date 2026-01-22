@@ -35,7 +35,7 @@ ssm = boto3.client(
 
 INSTANCE_ID = os.getenv("EC2_INSTANCE_ID")
 
-# Safe console commands to run on EC2 via SSM
+# Safe console commands
 ALLOWED_COMMANDS = {
     "df": "df -h",
     "uptime": "uptime",
@@ -103,9 +103,10 @@ async def run_console_command(cmd_key: str):
         state = ec2_response['Reservations'][0]['Instances'][0]['State']['Name']
 
         if state != 'running':
+            message = "Instance is down or unavailable" if state in ['stopped', 'stopping'] else "Loading EC2 instance status..."
             return {
                 "status": "down",
-                "message": f"Instance is {state} – console commands unavailable"
+                "message": message
             }
 
         response = ssm.send_command(
