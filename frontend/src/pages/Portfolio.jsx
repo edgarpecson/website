@@ -8,7 +8,11 @@ export default function Portfolio({
   handleStopEC2,
   ec2Log,
   handleClearLog,
-  BASE_URL
+  BASE_URL,
+  dbStatus,
+  setDbStatus,
+  isLoadingDb,
+  setIsLoadingDb
 }) {
   const logRef = useRef(null);
   const [consoleData, setConsoleData] = useState({});
@@ -23,6 +27,17 @@ export default function Portfolio({
 
   // Fetch console output on command change
   useEffect(() => {
+    const cmd = consoleCommands.find(c => c.key === activeCmd);
+    if (cmd?.dbCommand) {
+      if (dbStatus !== 'running') {
+        setConsoleData(prev => ({
+          ...prev,
+          [activeCmd]: { output: `Database is ${dbStatus}. Action not available.` }
+        }));
+      }
+      return; // Skip fetch for DB commands
+    }
+
     const fetchConsole = async () => {
       try {
         const res = await fetch(`${BASE_URL}/console/${activeCmd}`);
@@ -45,15 +60,50 @@ export default function Portfolio({
     };
 
     fetchConsole();
-  }, [activeCmd, BASE_URL]);
+  }, [activeCmd, BASE_URL, dbStatus]);
+
+  const handleDbAction = async (action) => {
+    if (ec2Status !== 'running') {
+      alert('EC2 instance must be running to manage the database.');
+      return;
+    }
+
+    setIsLoadingDb(true);
+    const cmdKey = action === 'start' ? 'start_db' : 'shutdown_db';
+    setDbStatus(action === 'start' ? 'starting' : 'shutting_down');
+
+    try {
+      const res = await fetch(`${BASE_URL}/console/${cmdKey}`);
+      const data = await res.json();
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      // Set console data directly from the response
+      setConsoleData(prev => ({ ...prev, [cmdKey]: data }));
+
+      // Simulate delay for DB operation (adjust based on real times)
+      await new Promise(resolve => setTimeout(resolve, 5000));
+
+      setDbStatus(action === 'start' ? 'running' : 'stopped');
+      setActiveCmd(cmdKey); // Switch to show output
+    } catch (err) {
+      setDbStatus('unknown');
+      alert(`Database ${action} failed: ${err.message}`);
+    } finally {
+      setIsLoadingDb(false);
+    }
+  };
 
   const consoleCommands = [
     { key: 'df', label: 'df -h (Disk Usage)' },
     { key: 'uptime', label: 'uptime' },
     { key: 'free', label: 'free -h (Memory)' },
     { key: 'top', label: 'top (brief)' },
-    { key: 'start_db', label: 'Start Oracle Database' },  // New entry
-];
+    { key: 'start_db', label: 'Start Oracle Database', dbCommand: true },
+    { key: 'shutdown_db', label: 'Shutdown Oracle Database', dbCommand: true },
+  ];
 
   return (
     <div className="page-container">
@@ -97,11 +147,34 @@ export default function Portfolio({
           Status: {ec2Status.charAt(0).toUpperCase() + ec2Status.slice(1)}
         </p>
 
+        {/* Warning when DB is running */}
+        {dbStatus === 'running' && (
+          <p style={{
+            textAlign: 'center',
+            color: '#dc3545',
+            fontWeight: 'bold',
+            background: '#fff2f2',
+            padding: '12px',
+            borderRadius: '8px',
+            marginBottom: '1.5rem',
+            border: '1px solid #ffcdd2'
+          }}>
+            Oracle Database is currently running.<br />
+            <strong>Shut down the database first</strong> before stopping the EC2 instance.
+          </p>
+        )}
+
         <div className="ec2-buttons">
           <button
             className="cta-primary"
             onClick={handleStartEC2}
-            disabled={ec2Status === 'running' || isLoadingEC2 || ec2Status === 'pending'}
+            disabled={
+              ec2Status === 'running' ||
+              isLoadingEC2 ||
+              ec2Status === 'pending' ||
+              dbStatus === 'running' ||
+              dbStatus === 'starting'
+            }
             style={{ width: '100%', maxWidth: '300px', marginBottom: '1rem' }}
           >
             {isLoadingEC2 ? 'Starting...' : 'Start Instance'}
@@ -116,7 +189,13 @@ export default function Portfolio({
               maxWidth: '300px'
             }}
             onClick={handleStopEC2}
-            disabled={ec2Status === 'stopped' || isLoadingEC2 || ec2Status === 'stopping'}
+            disabled={
+              ec2Status === 'stopped' ||
+              isLoadingEC2 ||
+              ec2Status === 'stopping' ||
+              dbStatus === 'running' ||
+              dbStatus === 'shutting_down'
+            }
           >
             {isLoadingEC2 ? 'Stopping...' : 'Stop Instance'}
           </button>
@@ -185,7 +264,26 @@ export default function Portfolio({
           {consoleCommands.map(cmd => (
             <button
               key={cmd.key}
-              onClick={() => setActiveCmd(cmd.key)}
+              onClick={() => {
+                if (cmd.dbCommand) {
+                  const action = cmd.key.includes('start') ? 'start' : 'shutdown';
+                  const isExecutable = 
+                    (cmd.key === 'start_db' && dbStatus === 'stopped' && !isLoadingDb) ||
+                    (cmd.key === 'shutdown_db' && dbStatus === 'running' && !isLoadingDb) &&
+                    ec2Status === 'running';
+
+                  if (isExecutable) {
+                    handleDbAction(action);
+                  } else {
+                    setActiveCmd(cmd.key);
+                  }
+                } else {
+                  setActiveCmd(cmd.key);
+                }
+              }}
+              disabled={cmd.dbCommand ? (
+                ec2Status !== 'running'
+              ) : false}
               style={{
                 padding: 'clamp(8px, 2vw, 12px) clamp(12px, 3vw, 20px)',
                 background: activeCmd === cmd.key ? '#006699' : '#e5e7eb',
@@ -196,10 +294,17 @@ export default function Portfolio({
                 fontSize: 'clamp(0.85rem, 3vw, 0.95rem)',
                 flex: '1 1 45%',
                 maxWidth: '220px',
-                minWidth: '140px'
+                minWidth: '140px',
+                opacity: cmd.dbCommand && (
+                  (cmd.key === 'start_db' && dbStatus !== 'stopped') ||
+                  (cmd.key === 'shutdown_db' && dbStatus !== 'running')
+                ) ? 0.6 : 1
               }}
             >
-              {cmd.label}
+              {isLoadingDb && (
+                (cmd.key === 'start_db' && dbStatus === 'starting') ||
+                (cmd.key === 'shutdown_db' && dbStatus === 'shutting_down')
+              ) ? 'Processing...' : cmd.label}
             </button>
           ))}
         </div>

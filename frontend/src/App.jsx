@@ -12,6 +12,8 @@ function App() {
   const [ec2Status, setEc2Status] = useState('unknown');
   const [isLoadingEC2, setIsLoadingEC2] = useState(false);
   const [ec2Log, setEc2Log] = useState([]);
+  const [dbStatus, setDbStatus] = useState('stopped');
+  const [isLoadingDb, setIsLoadingDb] = useState(false);
 
   // Hamburger menu state
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -79,6 +81,15 @@ function App() {
     const interval = setInterval(fetchStatus, 8000);
     return () => clearInterval(interval);
   }, [ec2Status, BASE_URL]);
+
+  // Reset dbStatus when EC2 status changes
+  useEffect(() => {
+    if (ec2Status === 'stopped' || ec2Status === 'stopping') {
+      setDbStatus('stopped');
+    } else if (ec2Status === 'pending') {
+      setDbStatus('unknown');
+    }
+  }, [ec2Status]);
 
   const handleRMAN = async () => {
     setIsLoadingRMAN(true);
@@ -181,6 +192,10 @@ function App() {
                 ec2Log={ec2Log}
                 handleClearLog={handleClearLog}
                 BASE_URL={BASE_URL}
+                dbStatus={dbStatus}
+                setDbStatus={setDbStatus}
+                isLoadingDb={isLoadingDb}
+                setIsLoadingDb={setIsLoadingDb}
               />
             }
           />

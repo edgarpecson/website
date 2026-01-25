@@ -46,7 +46,8 @@ ALLOWED_COMMANDS = {
     'uptime': 'uptime',
     'free': 'free -h',
     'top': 'top -b -n 1 | head -15',
-    'start_db': 'sudo su - oracle -c "cat /dev/null > /u01/app/oracle/product/19.0.0/dbhome_1/rdbms/log/startup.log && cd \\$ORACLE_HOME/bin && ./dbstart \\$ORACLE_HOME && echo \\"--- Startup Log ---\\" && cat /u01/app/oracle/product/19.0.0/dbhome_1/rdbms/log/startup.log | tail -n 50"'  # Chain: dbstart, separator, cat tailed log
+    'start_db': 'sudo su - oracle -c "cat /dev/null > /u01/app/oracle/product/19.0.0/dbhome_1/rdbms/log/startup.log && cd \\$ORACLE_HOME/bin && ./dbstart \\$ORACLE_HOME && echo \\"--- Startup Log ---\\" && cat /u01/app/oracle/product/19.0.0/dbhome_1/rdbms/log/startup.log | tail -n 50"',  # Chain: dbstart, separator, cat tailed log
+    'shutdown_db': 'sudo su - oracle -c "cat /dev/null > /u01/app/oracle/product/19.0.0/dbhome_1/rdbms/log/shutdown.log && cd \\$ORACLE_HOME/bin && ./dbshut \\$ORACLE_HOME && echo \\"--- Shutdown Log ---\\" && cat /u01/app/oracle/product/19.0.0/dbhome_1/rdbms/log/shutdown.log | tail -n 50"'  # Similar for shutdown: dbshut, separator, cat tailed log (adjust log path if needed)
 }
 
 # RMAN backup demo endpoint (simulated)
