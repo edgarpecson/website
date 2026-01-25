@@ -41,8 +41,7 @@ ALLOWED_COMMANDS = {
     'uptime': 'uptime',
     'free': 'free -h',
     'top': 'top -b -n 1 | head -15',
-    'ls_home': 'ls -lh /home/oracle',
-    'start_db': 'sudo su - oracle -c "cd \\$ORACLE_HOME/bin && ./dbstart \\$ORACLE_HOME"',  # If added
+    'start_db': 'sudo su - oracle -c "cat /dev/null > /u01/app/oracle/product/19.0.0/dbhome_1/rdbms/log/startup.log && cd \\$ORACLE_HOME/bin && ./dbstart \\$ORACLE_HOME && echo \\"--- Startup Log ---\\" && cat /u01/app/oracle/product/19.0.0/dbhome_1/rdbms/log/startup.log | tail -n 50"'  # Chain: dbstart, separator, cat tailed log
 }
 
 # RMAN backup demo endpoint (simulated)
