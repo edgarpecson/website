@@ -52,8 +52,8 @@ export default function Portfolio({
     { key: 'uptime', label: 'uptime' },
     { key: 'free', label: 'free -h (Memory)' },
     { key: 'top', label: 'top (brief)' },
-    { key: 'ls_home', label: 'ls -lh /home/oracle' },
-  ];
+    { key: 'start_db', label: 'Start Oracle Database' },  // New entry
+];
 
   return (
     <div className="page-container">

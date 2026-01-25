@@ -12,8 +12,8 @@ app = FastAPI(title="Edgar Pecson Portfolio Backend")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000", "*"],  # Change * to your domain in production
-    allow_credentials=True,
+    allow_origins=["http://localhost:5173", "http://localhost:3000"],  # Remove "*"
+    allow_credentials=False,  # Set to False (no creds used)
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -37,12 +37,12 @@ INSTANCE_ID = os.getenv("EC2_INSTANCE_ID")
 
 # Safe console commands
 ALLOWED_COMMANDS = {
-    "df": "df -h",
-    "uptime": "uptime",
-    "free": "free -h",
-    "top": "top -b -n 1 | head -15",
-    "ls_home": "ls -lh /home/oracle",
-    "ls_u01": "ls -lh /u01/app/oracle",
+    'df': 'df -h',
+    'uptime': 'uptime',
+    'free': 'free -h',
+    'top': 'top -b -n 1 | head -15',
+    'ls_home': 'ls -lh /home/oracle',
+    'start_db': 'sudo su - oracle -c "cd \\$ORACLE_HOME/bin && ./dbstart \\$ORACLE_HOME"',  # If added
 }
 
 # RMAN backup demo endpoint (simulated)
