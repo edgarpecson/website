@@ -68,6 +68,26 @@ function App() {
 
           addLog(logMessage);
           setEc2Status(newStatus);
+
+          // New: Check DB status if EC2 is running
+          if (newStatus === 'running') {
+            try {
+              const dbRes = await fetch(`${BASE_URL}/console/db_status`);
+              const dbData = await dbRes.json();
+              if (dbData.status === 'down') {
+                setDbStatus('stopped');
+              } else if (dbData.output && dbData.output.trim() !== '') {
+                setDbStatus('running');
+                addLog('Oracle Database is already running (detected via process check)');
+              } else {
+                setDbStatus('stopped');
+              }
+            } catch (dbErr) {
+              console.error('DB status check failed:', dbErr);
+              setDbStatus('unknown'); // Fallback
+              addLog(`DB status check failed: ${dbErr.message}`);
+            }
+          }
         }
       } catch (err) {
         if (ec2Status !== 'error') {
@@ -86,9 +106,8 @@ function App() {
   useEffect(() => {
     if (ec2Status === 'stopped' || ec2Status === 'stopping') {
       setDbStatus('stopped');
-    } else if (ec2Status === 'pending') {
-      setDbStatus('unknown');
     }
+    // Removed: else if (ec2Status === 'pending') { setDbStatus('unknown'); }
   }, [ec2Status]);
 
   const handleRMAN = async () => {
@@ -196,6 +215,7 @@ function App() {
                 setDbStatus={setDbStatus}
                 isLoadingDb={isLoadingDb}
                 setIsLoadingDb={setIsLoadingDb}
+                addLog={addLog}  // New prop to pass addLog to Portfolio
               />
             }
           />

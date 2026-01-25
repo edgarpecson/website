@@ -27,18 +27,18 @@ export default function Portfolio({
 
   // Fetch console output on command change
   useEffect(() => {
-    const cmd = consoleCommands.find(c => c.key === activeCmd);
-    if (cmd?.dbCommand) {
-      if (dbStatus !== 'running') {
-        setConsoleData(prev => ({
-          ...prev,
-          [activeCmd]: { output: `Database is ${dbStatus}. Action not available.` }
-        }));
-      }
-      return; // Skip fetch for DB commands
-    }
-
     const fetchConsole = async () => {
+      const cmdConfig = consoleCommands.find(c => c.key === activeCmd);
+      if (cmdConfig?.dbCommand && !cmdConfig.isView) {
+        if (dbStatus !== 'running') {
+          setConsoleData(prev => ({
+            ...prev,
+            [activeCmd]: { output: `Database is ${dbStatus}. Start it first.` }
+          }));
+          return;
+        }
+      }
+
       try {
         const res = await fetch(`${BASE_URL}/console/${activeCmd}`);
         const data = await res.json();
@@ -80,9 +80,6 @@ export default function Portfolio({
         throw new Error(data.error);
       }
 
-      // Set console data directly from the response
-      setConsoleData(prev => ({ ...prev, [cmdKey]: data }));
-
       // Simulate delay for DB operation (adjust based on real times)
       await new Promise(resolve => setTimeout(resolve, 5000));
 
@@ -103,6 +100,8 @@ export default function Portfolio({
     { key: 'top', label: 'top (brief)' },
     { key: 'start_db', label: 'Start Oracle Database', dbCommand: true },
     { key: 'shutdown_db', label: 'Shutdown Oracle Database', dbCommand: true },
+    { key: 'view_startup_log', label: 'Startup Log', dbCommand: true, isView: true }, // Hidden for viewing
+    { key: 'view_shutdown_log', label: 'Shutdown Log', dbCommand: true, isView: true } // Hidden for viewing
   ];
 
   return (
@@ -150,61 +149,39 @@ export default function Portfolio({
         {/* Warning when DB is running */}
         {dbStatus === 'running' && (
           <p style={{
-            textAlign: 'center',
             color: '#dc3545',
-            fontWeight: 'bold',
-            background: '#fff2f2',
-            padding: '12px',
-            borderRadius: '8px',
-            marginBottom: '1.5rem',
-            border: '1px solid #ffcdd2'
+            textAlign: 'center',
+            marginBottom: '16px',
+            fontWeight: 'bold'
           }}>
-            Oracle Database is currently running.<br />
-            <strong>Shut down the database first</strong> before stopping the EC2 instance.
+            Warning: Oracle 19c is running — buttons are disabled until database is stopped!
           </p>
         )}
 
         <div className="ec2-buttons">
           <button
-            className="cta-primary"
             onClick={handleStartEC2}
-            disabled={
-              ec2Status === 'running' ||
-              isLoadingEC2 ||
-              ec2Status === 'pending' ||
-              dbStatus === 'running' ||
-              dbStatus === 'starting'
-            }
-            style={{ width: '100%', maxWidth: '300px', marginBottom: '1rem' }}
+            disabled={ec2Status === 'running' || ec2Status === 'pending' || isLoadingEC2 || dbStatus === 'running' || dbStatus === 'shutting_down' || dbStatus === 'starting'}
+            style={{ fontSize: 'clamp(1rem, 4vw, 1.2rem)' }}
           >
-            {isLoadingEC2 ? 'Starting...' : 'Start Instance'}
+            {isLoadingEC2 && (ec2Status === 'stopped' || ec2Status === 'stopping')
+              ? 'Starting...'
+              : 'Start EC2 Instance'}
           </button>
-
           <button
-            className="cta-primary"
-            style={{ 
-              background: '#dc3545', 
-              boxShadow: '0 4px 12px rgba(220,53,69,0.3)',
-              width: '100%',
-              maxWidth: '300px'
-            }}
             onClick={handleStopEC2}
-            disabled={
-              ec2Status === 'stopped' ||
-              isLoadingEC2 ||
-              ec2Status === 'stopping' ||
-              dbStatus === 'running' ||
-              dbStatus === 'shutting_down'
-            }
+            disabled={ec2Status === 'stopped' || ec2Status === 'stopping' || isLoadingEC2 || dbStatus === 'running' || dbStatus === 'shutting_down' || dbStatus === 'starting'}
+            style={{ fontSize: 'clamp(1rem, 4vw, 1.2rem)' }}
           >
-            {isLoadingEC2 ? 'Stopping...' : 'Stop Instance'}
+            {isLoadingEC2 && (ec2Status === 'running' || ec2Status === 'pending')
+              ? 'Stopping...'
+              : 'Stop EC2 Instance'}
           </button>
         </div>
 
-        {/* Instance Activity Log */}
         <div className="ec2-log" ref={logRef}>
           <div className="ec2-log-header">
-            <h4 style={{ fontSize: 'clamp(1.1rem, 4vw, 1.25rem)' }}>Instance Activity Log</h4>
+            <h3 style={{ fontSize: '1.1rem', margin: 0 }}>Instance Activity Log</h3>
             <button
               className="ec2-log-clear"
               onClick={handleClearLog}
@@ -261,52 +238,52 @@ export default function Portfolio({
         </p>
 
         <div className="console-buttons" style={{ marginBottom: 'clamp(16px, 4vw, 20px)' }}>
-          {consoleCommands.map(cmd => (
-            <button
-              key={cmd.key}
-              onClick={() => {
-                if (cmd.dbCommand) {
-                  const action = cmd.key.includes('start') ? 'start' : 'shutdown';
-                  const isExecutable = 
-                    (cmd.key === 'start_db' && dbStatus === 'stopped' && !isLoadingDb) ||
-                    (cmd.key === 'shutdown_db' && dbStatus === 'running' && !isLoadingDb) &&
-                    ec2Status === 'running';
+          {consoleCommands.filter(c => !c.isView).map(cmd => {
+            const shouldDisable = cmd.dbCommand ? (
+              (cmd.key === 'start_db' && (dbStatus !== 'stopped' || isLoadingDb)) ||
+              (cmd.key === 'shutdown_db' && (dbStatus !== 'running' || isLoadingDb)) ||
+              ec2Status !== 'running'
+            ) : false;
 
-                  if (isExecutable) {
-                    handleDbAction(action);
+            return (
+              <button
+                key={cmd.key}
+                onClick={() => {
+                  if (cmd.dbCommand) {
+                    if (shouldDisable) {
+                      // Show log without action
+                      const viewKey = cmd.key === 'start_db' ? 'view_startup_log' : 'view_shutdown_log';
+                      setActiveCmd(viewKey);
+                    } else {
+                      // Perform action
+                      handleDbAction(cmd.key.includes('start') ? 'start' : 'shutdown');
+                    }
                   } else {
                     setActiveCmd(cmd.key);
                   }
-                } else {
-                  setActiveCmd(cmd.key);
-                }
-              }}
-              disabled={cmd.dbCommand ? (
-                ec2Status !== 'running'
-              ) : false}
-              style={{
-                padding: 'clamp(8px, 2vw, 12px) clamp(12px, 3vw, 20px)',
-                background: activeCmd === cmd.key ? '#006699' : '#e5e7eb',
-                color: activeCmd === cmd.key ? 'white' : '#111827',
-                border: 'none',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontSize: 'clamp(0.85rem, 3vw, 0.95rem)',
-                flex: '1 1 45%',
-                maxWidth: '220px',
-                minWidth: '140px',
-                opacity: cmd.dbCommand && (
-                  (cmd.key === 'start_db' && dbStatus !== 'stopped') ||
-                  (cmd.key === 'shutdown_db' && dbStatus !== 'running')
-                ) ? 0.6 : 1
-              }}
-            >
-              {isLoadingDb && (
-                (cmd.key === 'start_db' && dbStatus === 'starting') ||
-                (cmd.key === 'shutdown_db' && dbStatus === 'shutting_down')
-              ) ? 'Processing...' : cmd.label}
-            </button>
-          ))}
+                }}
+                // No disabled attribute - always clickable
+                style={{
+                  padding: 'clamp(8px, 2vw, 12px) clamp(12px, 3vw, 20px)',
+                  background: activeCmd === cmd.key ? '#006699' : '#e5e7eb',
+                  color: activeCmd === cmd.key ? 'white' : '#111827',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: shouldDisable ? 'not-allowed' : 'pointer',
+                  fontSize: 'clamp(0.85rem, 3vw, 0.95rem)',
+                  flex: '1 1 45%',
+                  maxWidth: '220px',
+                  minWidth: '140px',
+                  opacity: shouldDisable ? 0.6 : 1
+                }}
+              >
+                {isLoadingDb && (
+                  (cmd.key === 'start_db' && dbStatus === 'starting') ||
+                  (cmd.key === 'shutdown_db' && dbStatus === 'shutting_down')
+                ) ? 'Processing...' : cmd.label}
+              </button>
+            );
+          })}
         </div>
 
         <div className="console-output">
