@@ -12,10 +12,15 @@ app = FastAPI(title="Edgar Pecson Portfolio Backend")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],  # Remove "*"
-    allow_credentials=False,  # Set to False (no creds used)
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=[
+        "http://localhost:5173",  # Local Vite
+        "http://localhost:3000",  # Optional local
+        "https://edgarpecson.com",  # Prod frontend
+        "https://www.edgarpecson.com"  # If www variant used
+    ],
+    allow_credentials=False,  # Set to False (no cookies/auth in your app)
+    allow_methods=["*"],  # GET, POST, etc.
+    allow_headers=["*"],  # Authorization, etc., if needed later
 )
 
 # AWS clients using env vars
