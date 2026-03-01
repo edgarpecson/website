@@ -1,6 +1,68 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 function HomePage({ onNavigateToDemo, onNavigateToAbout }) {
+  const [liveStatus, setLiveStatus] = useState({
+    ec2: 'checking',
+    oracle: 'checking',
+    lastUpdate: null,
+    isLive: false
+  });
+  
+  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
+  // Fetch live status from API
+  useEffect(() => {
+    const fetchLiveStatus = async () => {
+      const startTime = Date.now();
+      
+      try {
+        // Fetch EC2 status
+        const ec2Res = await fetch(`${API_BASE}/ec2-status`);
+        const ec2Data = await ec2Res.json();
+        
+        // Fetch Oracle status
+        const oracleRes = await fetch(`${API_BASE}/oracle-status`);
+        const oracleData = await oracleRes.json();
+        
+        const responseTime = Date.now() - startTime;
+        
+        setLiveStatus({
+          ec2: ec2Data.status || 'unknown',
+          oracle: oracleData.status || 'unknown',
+          lastUpdate: new Date(),
+          responseTime: responseTime,
+          isLive: true
+        });
+      } catch (err) {
+        console.error('Failed to fetch live status:', err);
+        setLiveStatus(prev => ({
+          ...prev,
+          isLive: false
+        }));
+      }
+    };
+
+    // Fetch immediately
+    fetchLiveStatus();
+
+    // Then fetch every 8 seconds
+    const interval = setInterval(fetchLiveStatus, 8000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Calculate time since last update
+  const getTimeSinceUpdate = () => {
+    if (!liveStatus.lastUpdate) return 'checking...';
+    
+    const seconds = Math.floor((Date.now() - liveStatus.lastUpdate.getTime()) / 1000);
+    
+    if (seconds < 5) return 'just now';
+    if (seconds < 60) return `${seconds}s ago`;
+    const minutes = Math.floor(seconds / 60);
+    return `${minutes}m ago`;
+  };
+
   const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
     if (element) {
@@ -104,21 +166,28 @@ function HomePage({ onNavigateToDemo, onNavigateToAbout }) {
           {/* Live Status Widget - Mini Preview */}
           <div className="live-status-widget">
             <div className="widget-header">
-              <span className="widget-pulse">●</span>
+              <span className={`widget-pulse ${liveStatus.isLive ? 'pulse-active' : ''}`}>●</span>
               <span className="widget-title">Live Infrastructure Status</span>
+              <span className="widget-update-time">{getTimeSinceUpdate()}</span>
             </div>
             <div className="widget-stats">
               <div className="widget-stat">
                 <span className="widget-label">EC2 Instance</span>
-                <span className="widget-value">● Active</span>
+                <span className={`widget-value widget-value-${liveStatus.ec2}`}>
+                  ● {liveStatus.ec2 === 'checking' ? 'Checking...' : liveStatus.ec2}
+                </span>
               </div>
               <div className="widget-stat">
                 <span className="widget-label">Oracle Database</span>
-                <span className="widget-value">● Running</span>
+                <span className={`widget-value widget-value-${liveStatus.oracle}`}>
+                  ● {liveStatus.oracle === 'checking' ? 'Checking...' : liveStatus.oracle}
+                </span>
               </div>
               <div className="widget-stat">
-                <span className="widget-label">Uptime</span>
-                <span className="widget-value">99.99%</span>
+                <span className="widget-label">Response Time</span>
+                <span className="widget-value widget-value-metric">
+                  {liveStatus.responseTime ? `${liveStatus.responseTime}ms` : '--'}
+                </span>
               </div>
             </div>
             <button onClick={onNavigateToDemo} className="widget-cta">
