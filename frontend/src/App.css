@@ -2063,23 +2063,70 @@ section {
    LOADING STATES
    ============================================ */
 
-/* Loading Overlay */
-.loading-overlay {
+/* Loading Toast - Small Popup */
+.loading-toast {
   position: fixed;
-  top: 80px;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(13, 13, 18, 0.95);
-  backdrop-filter: blur(20px);
+  top: 100px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 3000;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: var(--space-xl);
-  padding-top: 100px;
-  animation: fadeIn 0.3s ease;
-  overflow-y: auto;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.loading-toast-content {
+  background: var(--bg-card);
+  border: 1px solid var(--primary);
+  border-radius: 12px;
+  padding: var(--space-lg);
+  min-width: 350px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.loading-toast-message {
+  margin: 0 0 var(--space-md) 0;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.loading-toast-progress {
+  height: 4px;
+  background: rgba(0, 217, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.loading-toast-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  animation: progressPulse 1.5s ease-in-out infinite;
+  border-radius: 2px;
+}
+
+@keyframes progressPulse {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0.6;
+  }
 }
 
 .loading-content {

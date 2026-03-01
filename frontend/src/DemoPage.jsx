@@ -539,12 +539,14 @@ function DemoPage({ onNavigateToHome }) {
           status polling every 8 seconds.
         </p>
 
-        {/* Loading Overlay */}
+        {/* Loading Toast */}
         {isLoading && (
-          <div className="loading-overlay">
-            <div className="loading-content">
-              <div className="loading-spinner"></div>
-              <h3 className="loading-title">{loadingMessage || 'Processing...'}</h3>
+          <div className="loading-toast">
+            <div className="loading-toast-content">
+              <p className="loading-toast-message">{loadingMessage || 'Processing...'}</p>
+              <div className="loading-toast-progress">
+                <div className="loading-toast-progress-bar"></div>
+              </div>
             </div>
           </div>
         )}
