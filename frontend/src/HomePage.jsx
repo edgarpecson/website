@@ -116,25 +116,10 @@ function HomePage({ onNavigateToDemo, onNavigateToAbout }) {
 
       <section id="hero" className="hero">
         <div className="hero-content">
-          <h1 className="hero-title">I Keep Legacy Oracle Running in Modern Cloud Infrastructure</h1>
+          <h1 className="hero-title">Legacy Oracle Systems Expert | AWS Migration | Python & AI Process Automation</h1>
           <p className="hero-subtitle">
             Full-time opportunities | Contract work | Ongoing support for enterprise Oracle systems transitioning to AWS
           </p>
-          
-          <div className="hero-highlights">
-            <div className="hero-highlight">
-              <span className="highlight-icon">🔧</span>
-              <p>Maintain legacy Oracle 19c systems while architecting cloud migration paths</p>
-            </div>
-            <div className="hero-highlight">
-              <span className="highlight-icon">🚀</span>
-              <p>Provide 24/7 enterprise database support across healthcare, real estate, and tech industries</p>
-            </div>
-            <div className="hero-highlight">
-              <span className="highlight-icon">☁️</span>
-              <p>Scale Oracle infrastructure on AWS without downtime</p>
-            </div>
-          </div>
 
           <div className="live-status-widget">
             <div className="widget-header">
@@ -229,14 +214,30 @@ function HomePage({ onNavigateToDemo, onNavigateToAbout }) {
       <section id="companies" className="companies-section">
         <h2 className="section-title">Companies I've Worked With</h2>
         <div className="companies-grid">
-          <div className="company-logo">AMD</div>
-          <div className="company-logo">AECOM</div>
-          <div className="company-logo">Scott & White</div>
-          <div className="company-logo">FirstCare</div>
-          <div className="company-logo">Keller Williams</div>
-          <div className="company-logo">VRBO</div>
-          <div className="company-logo">Expedia Group</div>
-          <div className="company-logo">Deloitte</div>
+          <div className="company-logo">
+            <img src="https://www.amd.com/content/dam/amd/en/logos/amd-logo.svg" alt="AMD" />
+          </div>
+          <div className="company-logo">
+            <img src="https://www.aecom.com/wp-content/uploads/2023/02/AECOM_logo.svg" alt="AECOM" />
+          </div>
+          <div className="company-logo">
+            <span className="company-text">Scott & White</span>
+          </div>
+          <div className="company-logo">
+            <span className="company-text">FirstCare</span>
+          </div>
+          <div className="company-logo">
+            <img src="https://www.kw.com/images/kw-logo.svg" alt="Keller Williams" />
+          </div>
+          <div className="company-logo">
+            <img src="https://csvcus.homeaway.com/rsrcs/cdn-logos/2.10.0/sitename/vr-logo-new-2.svg" alt="VRBO" />
+          </div>
+          <div className="company-logo">
+            <span className="company-text">Expedia Group</span>
+          </div>
+          <div className="company-logo">
+            <img src="https://www2.deloitte.com/content/dam/assets/logos/deloitte.svg" alt="Deloitte" />
+          </div>
         </div>
       </section>
 

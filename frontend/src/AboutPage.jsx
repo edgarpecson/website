@@ -17,7 +17,6 @@ function AboutPage({ onNavigateToHome }) {
         <div className="nav-links">
           <a href="#" onClick={(e) => { e.preventDefault(); onNavigateToHome('home'); }}>Home</a>
           <a href="#" className="active">About</a>
-          <a href="#" onClick={(e) => { e.preventDefault(); onNavigateToHome('expertise'); }}>Expertise</a>
           <button onClick={() => onNavigateToHome('demo')} className="nav-demo-btn">
             Live Demo
           </button>
@@ -77,64 +76,54 @@ function AboutPage({ onNavigateToHome }) {
         <div className="about-container">
           <div className="section-header">
             <h2 className="section-title">About Me</h2>
-            <p className="section-subtitle">How one mistake at 3 AM turned into a 10-year career</p>
+            <p className="section-subtitle">30+ years evolving from reel-to-reel backups to AI automation</p>
+          </div>
+
+          <div className="about-picture-placeholder">
+            <div className="picture-frame">
+              <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="1.5"/>
+                <path d="M6 21C6 17.134 8.68629 14 12 14C15.3137 14 18 17.134 18 21" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+            </div>
           </div>
 
           <div className="about-content">
             <div className="about-text">
               <p className="about-intro">
-                I crashed a production database at 3:47 AM on a Tuesday. That's how I became a database engineer.
+                From HP3000 reel-to-reel tape backups to Oracle 19c on AWS with Python & AI automation — 
+                my career spans three decades of database evolution.
               </p>
               
               <p>
-                I was a junior developer at a startup, running what I thought was a harmless UPDATE query. 
-                Forgot the WHERE clause. 8 million rows updated. Website went down. CEO called at 4 AM. 
-                I spent the next 6 hours learning everything about Oracle RMAN backups and point-in-time recovery.
+                I started as a system administrator supporting HP3000 MPE/iX, physically swapping reel-to-reel 
+                and DAT tapes for backups. Eventually worked my way up to Oracle Applications DBA on IBM, 
+                supporting developers and functional analysts — doing countless clones, setting up DataGuard, 
+                patching, and application configuration.
               </p>
 
               <p>
-                That was 10 years ago. Since then, I've prevented that exact scenario from happening to dozens 
-                of companies. I've architected systems managing 5+ petabytes of data for Fortune 500 companies 
-                and fast-growing startups. Oracle, PostgreSQL, MySQL, AWS RDS — if it stores data at scale, 
-                I've probably broken it, fixed it, and optimized it.
+                Transitioned to consulting, supporting up to 10 clients simultaneously with different Oracle 
+                Application environments. Became staff Oracle Applications DBA for VRBO, setting up their 
+                global Oracle Applications system. Later worked as consultant/contractor for Keller Williams 
+                supporting legacy Oracle 12c database and Oracle on AWS.
               </p>
 
               <p>
-                These days, I specialize in the problems that wake CTOs up at night: zero-downtime migrations, 
-                disaster recovery planning, and making databases run so well that nobody thinks about them. 
-                Because the best database is the one you never worry about.
+                Currently with Deloitte as a Solution Specialist for the Dept of Education, supporting Oracle 
+                19c on AWS EC2 and WebLogic running Java. Integrating Python scripts for daily processes and 
+                supporting functional/developer teams on applications.
               </p>
 
-              <div className="about-highlights">
-                <div className="highlight-item">
-                  <div className="highlight-icon">🎯</div>
-                  <div className="highlight-content">
-                    <h4>What Drives Me</h4>
-                    <p>Building systems so reliable that 3 AM pages become rare events, not regular occurrences</p>
-                  </div>
-                </div>
-
-                <div className="highlight-item">
-                  <div className="highlight-icon">💡</div>
-                  <div className="highlight-content">
-                    <h4>My Approach</h4>
-                    <p>Automate everything, monitor obsessively, and plan for failure before it happens</p>
-                  </div>
-                </div>
-
-                <div className="highlight-item">
-                  <div className="highlight-icon">🚀</div>
-                  <div className="highlight-content">
-                    <h4>What I'm Best At</h4>
-                    <p>Turning "our database is too slow" into "wait, did we just handle Black Friday traffic?"</p>
-                  </div>
-                </div>
-              </div>
+              <p>
+                <strong>What I bring:</strong> The rare combination of deep legacy Oracle expertise AND modern 
+                cloud/automation skills. I can maintain your 20-year-old Oracle system while building Python 
+                scripts and AI-powered automation to modernize your processes.
+              </p>
 
               <p className="about-closer">
-                Want to know if I can help with your database challenges? The live demo on this site is 
-                actually controlling a real Oracle database on AWS. If that doesn't prove I know what I'm 
-                doing, I don't know what will.
+                Want to see my work in action? The live demo on this site is actually controlling a real 
+                Oracle 19c database on AWS EC2. If that doesn't prove I know what I'm doing, I don't know what will.
               </p>
             </div>
           </div>
