@@ -10,17 +10,14 @@ function HomePage({ onNavigateToDemo, onNavigateToAbout }) {
   
   const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
-  // Fetch live status from API
   useEffect(() => {
     const fetchLiveStatus = async () => {
       const startTime = Date.now();
       
       try {
-        // Fetch EC2 status
         const ec2Res = await fetch(`${API_BASE}/ec2-status`);
         const ec2Data = await ec2Res.json();
         
-        // Fetch Oracle status
         const oracleRes = await fetch(`${API_BASE}/oracle-status`);
         const oracleData = await oracleRes.json();
         
@@ -35,28 +32,18 @@ function HomePage({ onNavigateToDemo, onNavigateToAbout }) {
         });
       } catch (err) {
         console.error('Failed to fetch live status:', err);
-        setLiveStatus(prev => ({
-          ...prev,
-          isLive: false
-        }));
+        setLiveStatus(prev => ({ ...prev, isLive: false }));
       }
     };
 
-    // Fetch immediately
     fetchLiveStatus();
-
-    // Then fetch every 8 seconds
     const interval = setInterval(fetchLiveStatus, 8000);
-
     return () => clearInterval(interval);
   }, []);
 
-  // Calculate time since last update
   const getTimeSinceUpdate = () => {
     if (!liveStatus.lastUpdate) return 'checking...';
-    
     const seconds = Math.floor((Date.now() - liveStatus.lastUpdate.getTime()) / 1000);
-    
     if (seconds < 5) return 'just now';
     if (seconds < 60) return `${seconds}s ago`;
     const minutes = Math.floor(seconds / 60);
@@ -72,11 +59,9 @@ function HomePage({ onNavigateToDemo, onNavigateToAbout }) {
 
   return (
     <div className="home-page">
-      {/* Animated Background */}
       <div className="bg-grid"></div>
       <div className="bg-gradient"></div>
 
-      {/* Desktop Navigation */}
       <nav className="nav desktop-nav">
         <div className="nav-logo">
           <span className="logo-bracket">{'<'}</span>
@@ -86,15 +71,11 @@ function HomePage({ onNavigateToDemo, onNavigateToAbout }) {
         <div className="nav-links">
           <a href="#hero">Home</a>
           <a href="#" onClick={(e) => { e.preventDefault(); onNavigateToAbout(); }}>About</a>
-          <a href="#expertise">Expertise</a>
-          <button onClick={onNavigateToDemo} className="nav-demo-btn">
-            Live Demo
-          </button>
+          <button onClick={onNavigateToDemo} className="nav-demo-btn">Live Demo</button>
           <a href="#contact">Contact</a>
         </div>
       </nav>
 
-      {/* Mobile Top Bar */}
       <div className="mobile-top-bar">
         <div className="mobile-logo">
           <span className="logo-bracket">{'<'}</span>
@@ -110,22 +91,16 @@ function HomePage({ onNavigateToDemo, onNavigateToAbout }) {
         </button>
       </div>
 
-      {/* Hamburger Menu Overlay */}
       <div className="hamburger-menu">
         <button className="hamburger-close" onClick={() => {
           document.querySelector('.hamburger-menu')?.classList.remove('open');
-        }}>
-          ✕
-        </button>
+        }}>✕</button>
         <nav className="hamburger-nav">
           <a href="#" onClick={(e) => { 
             e.preventDefault(); 
             onNavigateToAbout(); 
             document.querySelector('.hamburger-menu')?.classList.remove('open');
           }}>About Me</a>
-          <a href="#expertise" onClick={() => {
-            document.querySelector('.hamburger-menu')?.classList.remove('open');
-          }}>Expertise</a>
           <div className="hamburger-divider"></div>
           <a href="https://github.com/edgarpecson" target="_blank" rel="noopener noreferrer">
             <span className="hamburger-icon">🐙</span> GitHub
@@ -139,31 +114,28 @@ function HomePage({ onNavigateToDemo, onNavigateToAbout }) {
         </nav>
       </div>
 
-      {/* Hero Section - Centered */}
       <section id="hero" className="hero">
-        <div className="hero-content-centered">
-          <div className="hero-label">Database Engineer • Cloud Architect</div>
-          <h1 className="hero-title">
-            I Keep 5PB of Data
-            <span className="hero-gradient"> Running</span>
-            <br />
-            While You Sleep
-          </h1>
-          <p className="hero-desc">
-            Most companies lose six figures when their database crashes at 3 AM. I've architected systems 
-            that haven't gone down in 3 years. Oracle RAC, PostgreSQL, AWS infrastructure — 99.99% uptime 
-            isn't luck. It's engineering.
+        <div className="hero-content">
+          <h1 className="hero-title">I Keep Legacy Oracle Running in Modern Cloud Infrastructure</h1>
+          <p className="hero-subtitle">
+            Full-time opportunities | Contract work | Ongoing support for enterprise Oracle systems transitioning to AWS
           </p>
-          <div className="hero-cta">
-            <button onClick={onNavigateToDemo} className="btn btn-primary">
-              See Live Infrastructure →
-            </button>
-            <a href="#contact" className="btn btn-secondary">
-              Let's Talk
-            </a>
-          </div>
           
-          {/* Live Status Widget - Mini Preview */}
+          <div className="hero-highlights">
+            <div className="hero-highlight">
+              <span className="highlight-icon">🔧</span>
+              <p>Maintain legacy Oracle 19c systems while architecting cloud migration paths</p>
+            </div>
+            <div className="hero-highlight">
+              <span className="highlight-icon">🚀</span>
+              <p>Provide 24/7 enterprise database support across healthcare, real estate, and tech industries</p>
+            </div>
+            <div className="hero-highlight">
+              <span className="highlight-icon">☁️</span>
+              <p>Scale Oracle infrastructure on AWS without downtime</p>
+            </div>
+          </div>
+
           <div className="live-status-widget">
             <div className="widget-header">
               <span className={`widget-pulse ${liveStatus.isLive ? 'pulse-active' : ''}`}>●</span>
@@ -197,139 +169,88 @@ function HomePage({ onNavigateToDemo, onNavigateToAbout }) {
         </div>
       </section>
 
-      {/* Expertise Section - SINGLE ROW */}
-      <section id="expertise" className="expertise">
-        <div className="section-header">
-          <h2 className="section-title">How I've Saved Companies from Disaster</h2>
-          <p className="section-subtitle">Real problems solved, real metrics achieved</p>
-        </div>
-
-        <div className="expertise-row">
-          <div className="expertise-card">
-            <div className="card-icon">🗄️</div>
-            <h3>Zero-Downtime Migration</h3>
-            <p>
-              Migrated 2.3TB Oracle database serving 10M users with zero downtime. They never knew it happened. 
-              Planned the cutover for 18 months, executed in 4 hours on a Sunday morning.
-            </p>
-            <div className="tech-tags">
-              <span>Oracle RAC</span>
-              <span>Data Guard</span>
-              <span>Golden Gate</span>
-            </div>
-          </div>
-
-          <div className="expertise-card">
-            <div className="card-icon">💰</div>
-            <h3>$240K Cost Reduction</h3>
-            <p>
-              Found one misconfigured index causing full table scans. Fixed it in 20 minutes. 
-              Reduced RDS costs by 40% annually. ROI of that consulting day: 12,000%.
-            </p>
-            <div className="tech-tags">
-              <span>Query Tuning</span>
-              <span>AWS RDS</span>
-              <span>Performance</span>
-            </div>
-          </div>
-
-          <div className="expertise-card">
-            <div className="card-icon">🚨</div>
-            <h3>3 AM Production Recovery</h3>
-            <p>
-              Database corruption at 2:47 AM. 50K transactions/sec at risk. Recovered from RMAN backup, 
-              applied archived redo logs, and had system running by 3:32 AM. Total downtime: 45 minutes.
-            </p>
-            <div className="tech-tags">
-              <span>RMAN</span>
-              <span>PITR</span>
-              <span>Disaster Recovery</span>
-            </div>
-          </div>
-
-          <div className="expertise-card">
-            <div className="card-icon">⚡</div>
-            <h3>10x Performance Improvement</h3>
-            <p>
-              Query running 8 minutes was killing checkout flow. Rewrote it with proper indexing and 
-              partitioning. New time: 0.4 seconds. Customer conversion rate jumped 23%.
-            </p>
-            <div className="tech-tags">
-              <span>SQL Tuning</span>
-              <span>Indexing</span>
-              <span>Partitioning</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Contact Section */}
-      <section id="contact" className="contact">
-        <div className="contact-content">
-          <h2>Three Ways to Work Together</h2>
-          <p className="contact-intro">
-            Whether your database crashed at 3 AM or you're planning infrastructure for your next 10x growth, 
-            here's how we can work together:
-          </p>
-          
-          <div className="contact-options">
-            <div className="contact-option">
-              <div className="option-icon">🚨</div>
-              <h3>Emergency Database Recovery</h3>
-              <p>Production down? Data corrupted? I respond within 24 hours. Emergency consulting for critical database failures and performance issues.</p>
-              <div className="option-meta">24-hour response • Fixed-rate engagement</div>
-            </div>
-
-            <div className="contact-option">
-              <div className="option-icon">🔍</div>
-              <h3>Infrastructure Audit</h3>
-              <p>2-week deep dive into your database infrastructure. I'll find the bottlenecks, security gaps, and cost savings you're missing.</p>
-              <div className="option-meta">2-week engagement • Detailed report + recommendations</div>
-            </div>
-
-            <div className="contact-option">
-              <div className="option-icon">🚀</div>
-              <h3>Full-Time Role</h3>
-              <p>Building something massive? Need someone who can architect petabyte-scale systems? Let's talk about senior database/infrastructure engineering roles.</p>
-              <div className="option-meta">Remote or hybrid • Senior IC or Lead roles</div>
-            </div>
-          </div>
-
-          <div className="contact-cta-section">
-            <p className="contact-cta-text">Ready to talk? Pick your preferred method:</p>
+      <section id="contact" className="contact-section">
+        <h2 className="section-title">Get in Touch</h2>
+        
+        <div className="contact-options">
+          <div className="contact-option">
+            <span className="option-icon">🚨</span>
+            <h3>Emergency Database Recovery</h3>
+            <p>Critical production issues need immediate attention</p>
+            <span className="option-meta">24-hour response • Fixed-rate</span>
             <div className="contact-links">
-              <a href="mailto:edgar.pecson@example.com" className="contact-link contact-link-primary">
-                <span className="link-icon">📧</span>
-                <span className="link-text">
+              <a href="mailto:edgar.pecson@gmail.com?subject=Emergency Database Recovery" className="contact-link contact-link-primary">
+                <div className="link-text">
                   <span className="link-title">Email Me</span>
-                  <span className="link-subtitle">edgar.pecson@example.com</span>
-                </span>
+                  <span className="link-subtitle">edgar.pecson@gmail.com</span>
+                </div>
+              </a>
+            </div>
+          </div>
+
+          <div className="contact-option">
+            <span className="option-icon">🔍</span>
+            <h3>Infrastructure Audit</h3>
+            <p>Comprehensive assessment of your database infrastructure</p>
+            <span className="option-meta">2-week engagement • Detailed report</span>
+            <div className="contact-links">
+              <a href="mailto:edgar.pecson@gmail.com?subject=Infrastructure Audit" className="contact-link">
+                <div className="link-text">
+                  <span className="link-title">Email Me</span>
+                  <span className="link-subtitle">edgar.pecson@gmail.com</span>
+                </div>
+              </a>
+            </div>
+          </div>
+
+          <div className="contact-option">
+            <span className="option-icon">🚀</span>
+            <h3>Full-Time Role</h3>
+            <p>Looking for senior IC or lead database engineering positions</p>
+            <span className="option-meta">Senior IC / Lead positions</span>
+            <div className="contact-links">
+              <a href="mailto:edgar.pecson@gmail.com?subject=Full-Time Opportunity" className="contact-link">
+                <div className="link-text">
+                  <span className="link-title">Email Me</span>
+                  <span className="link-subtitle">edgar.pecson@gmail.com</span>
+                </div>
               </a>
               <a href="https://linkedin.com/in/edgarpecson" target="_blank" rel="noopener noreferrer" className="contact-link">
-                <span className="link-icon">💼</span>
-                <span className="link-text">
+                <div className="link-text">
                   <span className="link-title">LinkedIn</span>
-                  <span className="link-subtitle">Connect professionally</span>
-                </span>
-              </a>
-              <a href="https://github.com/edgarpecson" target="_blank" rel="noopener noreferrer" className="contact-link">
-                <span className="link-icon">🐙</span>
-                <span className="link-text">
-                  <span className="link-title">GitHub</span>
-                  <span className="link-subtitle">See my code</span>
-                </span>
+                  <span className="link-subtitle">View Profile</span>
+                </div>
               </a>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
+      <section id="companies" className="companies-section">
+        <h2 className="section-title">Companies I've Worked With</h2>
+        <div className="companies-grid">
+          <div className="company-logo">AMD</div>
+          <div className="company-logo">AECOM</div>
+          <div className="company-logo">Scott & White</div>
+          <div className="company-logo">FirstCare</div>
+          <div className="company-logo">Keller Williams</div>
+          <div className="company-logo">VRBO</div>
+          <div className="company-logo">Expedia Group</div>
+          <div className="company-logo">Deloitte</div>
+        </div>
+      </section>
+
       <footer className="footer">
-        <p>© 2026 Edgar Pecson • Database Engineer • Cloud Architect</p>
+        <div className="footer-links">
+          <a href="mailto:edgar.pecson@gmail.com">edgar.pecson@gmail.com</a>
+          <span className="footer-separator">•</span>
+          <a href="https://linkedin.com/in/edgarpecson" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          <span className="footer-separator">•</span>
+          <a href="https://github.com/edgarpecson" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </div>
+        <p className="footer-copyright">© 2026 Edgar Pecson</p>
       </footer>
 
-      {/* Mobile Bottom Navigation */}
       <nav className="mobile-bottom-nav">
         <button className="bottom-nav-item" onClick={() => scrollToSection('hero')}>
           <span className="nav-icon">🏠</span>

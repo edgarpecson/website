@@ -21,15 +21,16 @@ function DemoPage({ onNavigateToHome }) {
   const [tourStepCompleted, setTourStepCompleted] = useState(false);
   const [showContinueButton, setShowContinueButton] = useState(false);
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
+  const [clickedButtonPosition, setClickedButtonPosition] = useState(null);
   const logEndRef = useRef(null);
   const lastLogMessageRef = useRef('');
 
-  // Auto-scroll activity log only when new entries appear
+  // Only auto-scroll activity log when NOT in tour
   useEffect(() => {
-    if (activityLog.length > 0) {
+    if (activityLog.length > 0 && !tourActive) {
       logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [activityLog.length]);
+  }, [activityLog.length, tourActive]);
 
   // Poll EC2 status
   useEffect(() => {
@@ -52,6 +53,14 @@ function DemoPage({ onNavigateToHome }) {
               setTimeout(() => {
                 setShowSuccessAnimation(false);
                 setShowContinueButton(true);
+                
+                // Scroll to Continue button
+                setTimeout(() => {
+                  const continueBtn = document.querySelector('.tour-continue-btn');
+                  if (continueBtn) {
+                    continueBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }
+                }, 100);
               }, 3000);
             }
           } else if (newStatus === 'stopped' && lastLogMessageRef.current.includes('Stopping EC2')) {
@@ -99,6 +108,14 @@ function DemoPage({ onNavigateToHome }) {
               setTimeout(() => {
                 setShowSuccessAnimation(false);
                 setShowContinueButton(true);
+                
+                // Scroll to Continue button
+                setTimeout(() => {
+                  const continueBtn = document.querySelector('.tour-continue-btn');
+                  if (continueBtn) {
+                    continueBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }
+                }, 100);
               }, 3000);
             }
           } else if (newStatus === 'SHUTDOWN' && lastLogMessageRef.current.includes('Stopping Oracle')) {
@@ -380,6 +397,14 @@ function DemoPage({ onNavigateToHome }) {
     } else {
       setTourStep(0); // Start from beginning
     }
+    
+    // Scroll to first instruction
+    setTimeout(() => {
+      const instruction = document.querySelector('.tour-instruction');
+      if (instruction) {
+        instruction.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 100);
   };
 
   const skipTour = () => {

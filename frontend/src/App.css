@@ -2711,3 +2711,134 @@ section {
 .output-section.tour-dimmed {
   opacity: 0.3;
 }
+
+/* Hero Highlights */
+.hero-highlights {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--space-lg);
+  margin: var(--space-xl) 0;
+}
+
+.hero-highlight {
+  display: flex;
+  gap: var(--space-md);
+  align-items: flex-start;
+}
+
+.highlight-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.hero-highlight p {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* Companies Section */
+.companies-section {
+  padding: var(--space-xl);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.companies-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--space-lg);
+  margin-top: var(--space-xl);
+}
+
+.company-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  transition: all 0.3s ease;
+  min-height: 100px;
+}
+
+.company-logo:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: translateY(-2px);
+}
+
+/* Footer Updates */
+.footer-links {
+  display: flex;
+  gap: var(--space-md);
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.footer-links a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+  color: var(--primary);
+}
+
+.footer-separator {
+  color: var(--text-secondary);
+  opacity: 0.5;
+}
+
+.footer-copyright {
+  color: var(--text-secondary);
+  opacity: 0.7;
+  font-size: 0.9rem;
+}
+
+/* About Picture Placeholder */
+.about-picture-placeholder {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--space-xl);
+}
+
+.picture-frame {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  border: 3px solid var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 217, 255, 0.1);
+}
+
+.picture-text {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .companies-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .footer-links {
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+  
+  .footer-separator {
+    display: none;
+  }
+}
