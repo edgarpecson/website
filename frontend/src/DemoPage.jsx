@@ -43,10 +43,22 @@ function DemoPage({ onNavigateToHome }) {
         if (prevEc2Status !== newStatus && prevEc2Status !== 'checking') {
           if (newStatus === 'running' && lastLogMessageRef.current.includes('Starting EC2')) {
             updateLastLog('Instance is now running');
-            setShowSuccessAnimation(true);
-            setTimeout(() => setShowSuccessAnimation(false), 3000);
+            
+            // Tour: Show success animation when EC2 actually starts
+            if (tourActive && tourStep === 0) {
+              setTourStepCompleted(true);
+              setShowSuccessAnimation(true);
+              
+              setTimeout(() => {
+                setShowSuccessAnimation(false);
+                setShowContinueButton(true);
+              }, 3000);
+            }
           } else if (newStatus === 'stopped' && lastLogMessageRef.current.includes('Stopping EC2')) {
             updateLastLog('Instance is now stopped');
+            setIsLoading(false);
+            setLoadingProgress(0);
+            setLoadingSteps([]);
           }
         }
         
@@ -64,7 +76,7 @@ function DemoPage({ onNavigateToHome }) {
     fetchStatus();
     const interval = setInterval(fetchStatus, 8000);
     return () => clearInterval(interval);
-  }, [prevEc2Status]);
+  }, [prevEc2Status, tourActive, tourStep]);
 
   // Poll Oracle status
   useEffect(() => {
@@ -78,8 +90,17 @@ function DemoPage({ onNavigateToHome }) {
         if (prevOracleStatus !== newStatus && prevOracleStatus !== 'checking') {
           if (newStatus === 'OPEN' && lastLogMessageRef.current.includes('Starting Oracle')) {
             updateLastLog('Database is now running');
-            setShowSuccessAnimation(true);
-            setTimeout(() => setShowSuccessAnimation(false), 3000);
+            
+            // Tour: Show success animation when Oracle actually opens
+            if (tourActive && tourStep === 1) {
+              setTourStepCompleted(true);
+              setShowSuccessAnimation(true);
+              
+              setTimeout(() => {
+                setShowSuccessAnimation(false);
+                setShowContinueButton(true);
+              }, 3000);
+            }
           } else if (newStatus === 'SHUTDOWN' && lastLogMessageRef.current.includes('Stopping Oracle')) {
             updateLastLog('Database is now stopped');
           }
@@ -94,8 +115,8 @@ function DemoPage({ onNavigateToHome }) {
 
     fetchOracleStatus();
     const interval = setInterval(fetchOracleStatus, 10000);
-    return () => clearInterval(fetchOracleStatus);
-  }, [prevOracleStatus]);
+    return () => clearInterval(interval);
+  }, [prevOracleStatus, tourActive, tourStep]);
 
   const addLog = (message, type = 'info') => {
     const timestamp = new Date().toLocaleTimeString();
@@ -181,26 +202,11 @@ function DemoPage({ onNavigateToHome }) {
     simulateProgress(30, steps);
     
     try {
-      const res = await fetch(`${API_BASE}/start-ec2`, { method: 'POST' });
-      const data = await res.json();
-      setLoadingProgress(100);
-      setTimeout(() => {
-        setIsLoading(false);
-        setLoadingProgress(0);
-        setLoadingSteps([]);
-        
-        // Tour: Mark step completed and show success
-        if (tourActive && tourStep === 0) {
-          setTourStepCompleted(true);
-          setShowSuccessAnimation(true);
-          
-          // Show Continue button AFTER success animation (3 seconds)
-          setTimeout(() => {
-            setShowSuccessAnimation(false);
-            setShowContinueButton(true);
-          }, 3000);
-        }
-      }, 1000);
+      await fetch(`${API_BASE}/start-ec2`, { method: 'POST' });
+      // Don't show success yet - wait for actual status to change
+      setIsLoading(false);
+      setLoadingProgress(0);
+      setLoadingSteps([]);
     } catch (err) {
       addLog('Failed to start EC2 instance', 'error');
       setIsLoading(false);
@@ -221,13 +227,8 @@ function DemoPage({ onNavigateToHome }) {
     simulateProgress(15, steps);
     
     try {
-      const res = await fetch(`${API_BASE}/stop-ec2`, { method: 'POST' });
-      const data = await res.json();
-      setLoadingProgress(100);
-      setTimeout(() => {
-        setIsLoading(false);
-        setLoadingProgress(0);
-      }, 1000);
+      await fetch(`${API_BASE}/stop-ec2`, { method: 'POST' });
+      // Don't hide loading yet - wait for actual stop
     } catch (err) {
       addLog('Failed to stop EC2 instance', 'error');
       setIsLoading(false);
@@ -257,24 +258,10 @@ function DemoPage({ onNavigateToHome }) {
       if (data.output) {
         setConsoleOutput(data.output);
       }
-      setLoadingProgress(100);
-      setTimeout(() => {
-        setIsLoading(false);
-        setLoadingProgress(0);
-        setLoadingSteps([]);
-        
-        // Tour: Mark step completed and show success
-        if (tourActive && tourStep === 1) {
-          setTourStepCompleted(true);
-          setShowSuccessAnimation(true);
-          
-          // Show Continue button AFTER success animation (3 seconds)
-          setTimeout(() => {
-            setShowSuccessAnimation(false);
-            setShowContinueButton(true);
-          }, 3000);
-        }
-      }, 1000);
+      // Don't show success yet - wait for actual status to change
+      setIsLoading(false);
+      setLoadingProgress(0);
+      setLoadingSteps([]);
     } catch (err) {
       addLog('Failed to start Oracle Database', 'error');
       setIsLoading(false);
@@ -312,10 +299,8 @@ function DemoPage({ onNavigateToHome }) {
   };
 
   const runConsoleCommand = async (cmd, label) => {
-    setIsLoading(true);
     setTourStepCompleted(false);
     setShowContinueButton(false);
-    setLoadingMessage(`Executing ${label || cmd}...`);
     addLog(`Running: ${label || cmd}`, 'info');
     
     try {
@@ -334,18 +319,14 @@ function DemoPage({ onNavigateToHome }) {
       
       // Tour Step 4: Auto-complete tour after any database command
       if (tourActive && tourStep === 3) {
-        setShowSuccessAnimation(true);
         setTimeout(() => {
-          setShowSuccessAnimation(false);
           setTourStep(4); // Go to completion screen
-        }, 2000);
+        }, 1000);
       }
     } catch (err) {
       setConsoleOutput('Command failed');
       addLog(`Command failed: ${label || cmd}`, 'error');
     }
-    setIsLoading(false);
-    setLoadingMessage('');
   };
 
   const runRMANDemo = async () => {
@@ -374,13 +355,11 @@ function DemoPage({ onNavigateToHome }) {
         setLoadingProgress(0);
         setLoadingSteps([]);
         
-        // Tour Step 4: Auto-complete tour after any database command
+        // Tour Step 4: Auto-complete tour
         if (tourActive && tourStep === 3) {
-          setShowSuccessAnimation(true);
           setTimeout(() => {
-            setShowSuccessAnimation(false);
-            setTourStep(4); // Go to completion screen
-          }, 2000);
+            setTourStep(4);
+          }, 1000);
         }
       }, 1000);
     } catch (err) {
@@ -630,7 +609,7 @@ function DemoPage({ onNavigateToHome }) {
             </div>
           )}
           
-          <div className={`section-content ${tourActive ? 'tour-dimmed' : ''}`}>
+          <div className={`section-content ${tourActive ? 'tour-dimmed' : !tourActive && isEc2Stopped ? 'tour-dimmed' : ''}`}>
             <h2 className="section-heading">EC2 Instance Console</h2>
             <p className="section-description">
               Your virtual server running in AWS. Start it up to access your Oracle database, 
@@ -646,7 +625,7 @@ function DemoPage({ onNavigateToHome }) {
           <div className="action-buttons-compact">
             <button 
               onClick={startEC2}
-              className={`action-btn action-btn-start ${tourActive && tourStep === 0 && canStartEc2 && !tourStepCompleted ? 'tour-spotlight' : ''}`}
+              className={`action-btn action-btn-start ${tourActive && tourStep === 0 && canStartEc2 && !tourStepCompleted ? 'tour-spotlight' : !tourActive && isEc2Stopped ? 'tour-spotlight' : ''}`}
               disabled={!canStartEc2}
             >
               ▶ Start EC2
@@ -705,7 +684,7 @@ function DemoPage({ onNavigateToHome }) {
             </div>
           )}
           
-          <div className={`section-content ${tourActive ? 'tour-dimmed' : ''}`}>
+          <div className={`section-content ${tourActive ? 'tour-dimmed' : !tourActive && isDbShutdown ? 'tour-dimmed' : ''}`}>
             <h2 className="section-heading">Oracle 19c Instance Console</h2>
             <p className="section-description">
               Your production Oracle database. Always stop the database gracefully before 
@@ -721,7 +700,7 @@ function DemoPage({ onNavigateToHome }) {
           <div className="action-buttons-compact">
             <button 
               onClick={startOracle}
-              className={`action-btn action-btn-start ${tourActive && tourStep === 1 && canStartDb && !tourStepCompleted ? 'tour-spotlight' : ''}`}
+              className={`action-btn action-btn-start ${tourActive && tourStep === 1 && canStartDb && !tourStepCompleted ? 'tour-spotlight' : !tourActive && isDbShutdown ? 'tour-spotlight' : ''}`}
               disabled={!canStartDb}
             >
               ▶ Start Oracle DB

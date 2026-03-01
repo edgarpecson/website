@@ -2066,7 +2066,7 @@ section {
 /* Loading Overlay */
 .loading-overlay {
   position: fixed;
-  top: 0;
+  top: 80px;
   left: 0;
   right: 0;
   bottom: 0;
@@ -2074,10 +2074,12 @@ section {
   backdrop-filter: blur(20px);
   z-index: 3000;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   padding: var(--space-xl);
+  padding-top: 100px;
   animation: fadeIn 0.3s ease;
+  overflow-y: auto;
 }
 
 .loading-content {
@@ -2322,7 +2324,18 @@ section {
   border-radius: 16px;
   padding: var(--space-xl);
   margin-top: var(--space-xl);
+  margin-bottom: var(--space-xl);
   animation: slideInUp 0.5s ease;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 700px;
+  width: 90%;
+  z-index: 4000;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
 }
 
 @keyframes slideInUp {
