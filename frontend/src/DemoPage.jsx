@@ -10,7 +10,15 @@ function DemoPage({ onNavigateToHome }) {
   const [consoleOutput, setConsoleOutput] = useState('');
   const [activityLog, setActivityLog] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingProgress, setLoadingProgress] = useState(0);
+  const [loadingSteps, setLoadingSteps] = useState([]);
+  const [loadingMessage, setLoadingMessage] = useState('');
+  const [timeRemaining, setTimeRemaining] = useState(0);
   const [showWarmupNotice, setShowWarmupNotice] = useState(true);
+  const [showTourWelcome, setShowTourWelcome] = useState(true);
+  const [tourActive, setTourActive] = useState(false);
+  const [tourStep, setTourStep] = useState(0);
+  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
   const logEndRef = useRef(null);
   const lastLogMessageRef = useRef('');
 
@@ -33,6 +41,8 @@ function DemoPage({ onNavigateToHome }) {
         if (prevEc2Status !== newStatus && prevEc2Status !== 'checking') {
           if (newStatus === 'running' && lastLogMessageRef.current.includes('Starting EC2')) {
             updateLastLog('Instance is now running');
+            setShowSuccessAnimation(true);
+            setTimeout(() => setShowSuccessAnimation(false), 3000);
           } else if (newStatus === 'stopped' && lastLogMessageRef.current.includes('Stopping EC2')) {
             updateLastLog('Instance is now stopped');
           }
@@ -66,6 +76,8 @@ function DemoPage({ onNavigateToHome }) {
         if (prevOracleStatus !== newStatus && prevOracleStatus !== 'checking') {
           if (newStatus === 'OPEN' && lastLogMessageRef.current.includes('Starting Oracle')) {
             updateLastLog('Database is now running');
+            setShowSuccessAnimation(true);
+            setTimeout(() => setShowSuccessAnimation(false), 3000);
           } else if (newStatus === 'SHUTDOWN' && lastLogMessageRef.current.includes('Stopping Oracle')) {
             updateLastLog('Database is now stopped');
           }
@@ -80,7 +92,7 @@ function DemoPage({ onNavigateToHome }) {
 
     fetchOracleStatus();
     const interval = setInterval(fetchOracleStatus, 10000);
-    return () => clearInterval(interval);
+    return () => clearInterval(fetchOracleStatus);
   }, [prevOracleStatus]);
 
   const addLog = (message, type = 'info') => {
@@ -108,85 +120,255 @@ function DemoPage({ onNavigateToHome }) {
     lastLogMessageRef.current = '';
   };
 
+  // Simulate loading progress
+  const simulateProgress = (duration, steps) => {
+    setLoadingProgress(0);
+    setLoadingSteps(steps);
+    setTimeRemaining(duration);
+    
+    const totalSteps = steps.length;
+    const stepDuration = duration / totalSteps;
+    let currentStep = 0;
+    
+    const progressInterval = setInterval(() => {
+      currentStep++;
+      const progress = (currentStep / totalSteps) * 100;
+      setLoadingProgress(Math.min(progress, 95)); // Cap at 95% until actual completion
+      
+      if (currentStep < totalSteps) {
+        setLoadingMessage(steps[currentStep].message);
+      }
+      
+      if (currentStep >= totalSteps) {
+        clearInterval(progressInterval);
+      }
+    }, stepDuration * 1000);
+    
+    const timeInterval = setInterval(() => {
+      setTimeRemaining(prev => {
+        if (prev <= 1) {
+          clearInterval(timeInterval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    
+    return () => {
+      clearInterval(progressInterval);
+      clearInterval(timeInterval);
+    };
+  };
+
   const startEC2 = async () => {
     setIsLoading(true);
     addLog('Starting EC2 instance...', 'info');
+    
+    const steps = [
+      { message: 'Sent start command to AWS', completed: true },
+      { message: 'AWS accepted request', completed: false },
+      { message: 'Instance state: pending', completed: false },
+      { message: 'Booting operating system...', completed: false },
+      { message: 'Waiting for network...', completed: false },
+      { message: 'Checking SSH access...', completed: false }
+    ];
+    
+    setLoadingMessage('Sending start command to AWS...');
+    simulateProgress(30, steps);
+    
     try {
-      await fetch(`${API_BASE}/start-ec2`, { method: 'POST' });
+      const res = await fetch(`${API_BASE}/start-ec2`, { method: 'POST' });
+      const data = await res.json();
+      setLoadingProgress(100);
+      setTimeout(() => {
+        setIsLoading(false);
+        setLoadingProgress(0);
+        setLoadingSteps([]);
+        if (tourActive && tourStep === 0) {
+          setTourStep(1);
+        }
+      }, 1000);
     } catch (err) {
       addLog('Failed to start EC2 instance', 'error');
+      setIsLoading(false);
+      setLoadingProgress(0);
     }
-    setIsLoading(false);
   };
 
   const stopEC2 = async () => {
     setIsLoading(true);
     addLog('Stopping EC2 instance...', 'warning');
+    
+    const steps = [
+      { message: 'Sent stop command to AWS', completed: true },
+      { message: 'Gracefully shutting down services', completed: false },
+      { message: 'Stopping instance', completed: false }
+    ];
+    
+    simulateProgress(15, steps);
+    
     try {
-      await fetch(`${API_BASE}/stop-ec2`, { method: 'POST' });
+      const res = await fetch(`${API_BASE}/stop-ec2`, { method: 'POST' });
+      const data = await res.json();
+      setLoadingProgress(100);
+      setTimeout(() => {
+        setIsLoading(false);
+        setLoadingProgress(0);
+      }, 1000);
     } catch (err) {
       addLog('Failed to stop EC2 instance', 'error');
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const startOracle = async () => {
     setIsLoading(true);
     addLog('Starting Oracle Database...', 'info');
+    
+    const steps = [
+      { message: 'Executing dbstart command', completed: true },
+      { message: 'Reading init parameters', completed: false },
+      { message: 'Allocating SGA memory', completed: false },
+      { message: 'Opening control files', completed: false },
+      { message: 'Mounting database...', completed: false },
+      { message: 'Starting listener service...', completed: false }
+    ];
+    
+    simulateProgress(45, steps);
+    
     try {
       const res = await fetch(`${API_BASE}/start-oracle`, { method: 'POST' });
       const data = await res.json();
       if (data.output) {
         setConsoleOutput(data.output);
       }
+      setLoadingProgress(100);
+      setTimeout(() => {
+        setIsLoading(false);
+        setLoadingProgress(0);
+        setLoadingSteps([]);
+        if (tourActive && tourStep === 1) {
+          setTourStep(2);
+        }
+      }, 1000);
     } catch (err) {
       addLog('Failed to start Oracle Database', 'error');
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const stopOracle = async () => {
     setIsLoading(true);
     addLog('Stopping Oracle Database...', 'warning');
+    
+    const steps = [
+      { message: 'Executing dbshut command', completed: true },
+      { message: 'Closing user connections', completed: false },
+      { message: 'Flushing buffers to disk', completed: false },
+      { message: 'Shutting down instance', completed: false }
+    ];
+    
+    simulateProgress(20, steps);
+    
     try {
       const res = await fetch(`${API_BASE}/stop-oracle`, { method: 'POST' });
       const data = await res.json();
       if (data.output) {
         setConsoleOutput(data.output);
       }
+      setLoadingProgress(100);
+      setTimeout(() => {
+        setIsLoading(false);
+        setLoadingProgress(0);
+      }, 1000);
     } catch (err) {
       addLog('Failed to stop Oracle Database', 'error');
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const runConsoleCommand = async (cmd, label) => {
     setIsLoading(true);
+    setLoadingMessage(`Executing ${label || cmd}...`);
     addLog(`Running: ${label || cmd}`, 'info');
+    
     try {
       const res = await fetch(`${API_BASE}/console/${cmd}`);
       const data = await res.json();
       setConsoleOutput(data.output || data.message || 'No output');
       addLog(`Command completed: ${label || cmd}`, 'success');
+      
+      if (tourActive && tourStep === 2) {
+        setTourStep(3);
+      }
     } catch (err) {
       setConsoleOutput('Command failed');
       addLog(`Command failed: ${label || cmd}`, 'error');
     }
     setIsLoading(false);
+    setLoadingMessage('');
   };
 
   const runRMANDemo = async () => {
     setIsLoading(true);
     addLog('Running RMAN backup simulation...', 'info');
+    
+    const steps = [
+      { message: 'Connecting to RMAN', completed: true },
+      { message: 'Allocating backup channel', completed: false },
+      { message: 'Backing up datafiles...', completed: false },
+      { message: 'Backing up archive logs', completed: false }
+    ];
+    
+    simulateProgress(30, steps);
+    
     try {
       const res = await fetch(`${API_BASE}/rman-demo`);
       const data = await res.json();
       setConsoleOutput(data.output || '');
       addLog('RMAN backup completed successfully', 'success');
+      setLoadingProgress(100);
+      setTimeout(() => {
+        setIsLoading(false);
+        setLoadingProgress(0);
+        setLoadingSteps([]);
+        if (tourActive && tourStep === 3) {
+          setTourStep(4);
+        }
+      }, 1000);
     } catch (err) {
       addLog('RMAN demo failed', 'error');
+      setIsLoading(false);
     }
-    setIsLoading(false);
+  };
+
+  const startTour = () => {
+    setShowTourWelcome(false);
+    setTourActive(true);
+    setTourStep(0);
+  };
+
+  const skipTour = () => {
+    setShowTourWelcome(false);
+    setTourActive(false);
+  };
+
+  const nextTourStep = () => {
+    if (tourStep < 4) {
+      setTourStep(tourStep + 1);
+    } else {
+      completeTour();
+    }
+  };
+
+  const completeTour = () => {
+    setTourActive(false);
+    setTourStep(0);
+  };
+
+  const restartTour = () => {
+    setTourActive(true);
+    setTourStep(0);
   };
 
   // Button state logic
@@ -247,6 +429,50 @@ function DemoPage({ onNavigateToHome }) {
           </div>
         )}
 
+        {/* Tour Welcome Screen */}
+        {showTourWelcome && (
+          <div className="tour-welcome">
+            <div className="tour-welcome-content">
+              <h2 className="tour-welcome-title">👋 Welcome to the Live Infrastructure Demo</h2>
+              <p className="tour-welcome-text">
+                Watch me control a real AWS EC2 instance and Oracle 19c database from this browser.
+                <br />
+                All interactions happen in real-time with actual cloud infrastructure.
+              </p>
+              <div className="tour-welcome-buttons">
+                <button className="tour-btn tour-btn-primary" onClick={startTour}>
+                  <span className="tour-btn-icon">🎯</span>
+                  <span className="tour-btn-text">
+                    <span className="tour-btn-title">Take the Tour</span>
+                    <span className="tour-btn-subtitle">60 seconds</span>
+                  </span>
+                </button>
+                <button className="tour-btn tour-btn-secondary" onClick={skipTour}>
+                  <span className="tour-btn-icon">⚡</span>
+                  <span className="tour-btn-text">
+                    <span className="tour-btn-title">Explore Free</span>
+                    <span className="tour-btn-subtitle">I know this</span>
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Tour Progress Bar */}
+        {tourActive && (
+          <div className="tour-progress-bar">
+            <div className="tour-progress-header">
+              <span className="tour-progress-label">GUIDED TOUR</span>
+              <span className="tour-progress-step">Step {tourStep + 1} of 5</span>
+              <button className="tour-skip-btn" onClick={completeTour}>Skip Tour</button>
+            </div>
+            <div className="tour-progress-track">
+              <div className="tour-progress-fill" style={{ width: `${((tourStep + 1) / 5) * 100}%` }}></div>
+            </div>
+          </div>
+        )}
+
         {/* Main Description */}
         <p className="main-description-large">
           Live control panel for a real AWS EC2 instance running Oracle 19c. This is the same workflow 
@@ -254,8 +480,76 @@ function DemoPage({ onNavigateToHome }) {
           status polling every 8 seconds.
         </p>
 
+        {/* Loading Overlay */}
+        {isLoading && loadingSteps.length > 0 && (
+          <div className="loading-overlay">
+            <div className="loading-content">
+              <div className="loading-header">
+                <span className="loading-icon">🚀</span>
+                <h3 className="loading-title">{loadingMessage || 'Processing...'}</h3>
+              </div>
+              
+              <div className="loading-progress-bar">
+                <div className="loading-progress-fill" style={{ width: `${loadingProgress}%` }}></div>
+                <span className="loading-progress-text">{Math.round(loadingProgress)}%</span>
+              </div>
+              
+              <div className="loading-steps">
+                {loadingSteps.map((step, index) => (
+                  <div key={index} className={`loading-step ${index < Math.floor(loadingSteps.length * (loadingProgress / 100)) ? 'completed' : index === Math.floor(loadingSteps.length * (loadingProgress / 100)) ? 'current' : 'pending'}`}>
+                    <span className="loading-step-icon">
+                      {index < Math.floor(loadingSteps.length * (loadingProgress / 100)) ? '✓' : 
+                       index === Math.floor(loadingSteps.length * (loadingProgress / 100)) ? '⏳' : '⏹'}
+                    </span>
+                    <span className="loading-step-text">{step.message}</span>
+                  </div>
+                ))}
+              </div>
+              
+              {timeRemaining > 0 && (
+                <div className="loading-footer">
+                  <p className="loading-time">Estimated time remaining: {timeRemaining} seconds</p>
+                  <p className="loading-context">
+                    💡 What's happening: {
+                      loadingMessage.includes('EC2') ? 'AWS is allocating compute resources, booting the Linux OS, and initializing network services.' :
+                      loadingMessage.includes('Oracle') ? 'Oracle is starting the instance, allocating memory (SGA), and opening the database files.' :
+                      loadingMessage.includes('RMAN') ? 'RMAN is creating a full database backup to the fast recovery area.' :
+                      'Executing command on the remote server via SSH.'
+                    }
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Success Animation */}
+        {showSuccessAnimation && (
+          <div className="success-animation">
+            <div className="success-content">
+              <div className="success-icon">🎉</div>
+              <h3 className="success-title">Success!</h3>
+              <p className="success-message">Operation completed successfully</p>
+            </div>
+          </div>
+        )}
+
         {/* EC2 Instance Console Section */}
-        <div className="console-section">
+        <div className={`console-section ${tourActive && tourStep === 0 ? 'tour-highlight' : tourActive ? 'tour-dimmed' : ''}`}>
+          {tourActive && tourStep === 0 && (
+            <div className="tour-instruction">
+              <h3 className="tour-instruction-title">Step 1: Start the Virtual Server</h3>
+              <p className="tour-instruction-text">
+                The EC2 instance is the virtual machine that hosts our Oracle database. 
+                We need to boot it first before we can do anything.
+              </p>
+              <p className="tour-instruction-status">
+                Current Status: <strong>{ec2Status}</strong> {ec2Status === 'stopped' ? '🔴' : ec2Status === 'running' ? '🟢' : '🟡'}
+              </p>
+              <p className="tour-instruction-cta">Click the button below to start it:</p>
+            </div>
+          )}
+          
           <h2 className="section-heading">EC2 Instance Console</h2>
           <p className="section-description">
             Your virtual server running in AWS. Start it up to access your Oracle database, 
@@ -270,7 +564,7 @@ function DemoPage({ onNavigateToHome }) {
           <div className="action-buttons-compact">
             <button 
               onClick={startEC2}
-              className="action-btn action-btn-start"
+              className={`action-btn action-btn-start ${tourActive && tourStep === 0 && canStartEc2 ? 'tour-pulse' : ''}`}
               disabled={!canStartEc2}
             >
               ▶ Start EC2
@@ -289,10 +583,32 @@ function DemoPage({ onNavigateToHome }) {
               ⚠️ Oracle 19c is running - stop the database before stopping EC2
             </div>
           )}
+          
+          {tourActive && tourStep === 0 && ec2Status === 'running' && (
+            <div className="tour-next">
+              <button className="tour-next-btn" onClick={nextTourStep}>
+                Continue to Step 2 →
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Oracle 19c Instance Console Section */}
-        <div className="oracle-section">
+        <div className={`oracle-section ${tourActive && tourStep === 1 ? 'tour-highlight' : tourActive ? 'tour-dimmed' : ''}`}>
+          {tourActive && tourStep === 1 && (
+            <div className="tour-instruction">
+              <h3 className="tour-instruction-title">Step 2: Start the Oracle Database</h3>
+              <p className="tour-instruction-text">
+                Now that the server is running, we can start the Oracle database that's installed on it. 
+                This uses Oracle's dbstart command under the hood, same as you'd do via SSH.
+              </p>
+              <p className="tour-instruction-status">
+                Current Status: <strong>{oracleStatus}</strong> {oracleStatus === 'SHUTDOWN' ? '🔴' : oracleStatus === 'OPEN' ? '🟢' : '🟡'}
+              </p>
+              <p className="tour-instruction-cta">Click to start the database:</p>
+            </div>
+          )}
+          
           <h2 className="section-heading">Oracle 19c Instance Console</h2>
           <p className="section-description">
             Your production Oracle database. Always stop the database gracefully before 
@@ -307,7 +623,7 @@ function DemoPage({ onNavigateToHome }) {
           <div className="action-buttons-compact">
             <button 
               onClick={startOracle}
-              className="action-btn action-btn-start"
+              className={`action-btn action-btn-start ${tourActive && tourStep === 1 && canStartDb ? 'tour-pulse' : ''}`}
               disabled={!canStartDb}
             >
               ▶ Start Oracle DB
@@ -320,6 +636,14 @@ function DemoPage({ onNavigateToHome }) {
               ■ Shutdown Oracle DB
             </button>
           </div>
+          
+          {tourActive && tourStep === 1 && oracleStatus === 'OPEN' && (
+            <div className="tour-next">
+              <button className="tour-next-btn" onClick={nextTourStep}>
+                Continue to Step 3 →
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Extra spacing before Activity Log */}

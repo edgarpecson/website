@@ -7,8 +7,8 @@ function AboutPage({ onNavigateToHome }) {
       <div className="bg-grid"></div>
       <div className="bg-gradient"></div>
 
-      {/* Navigation */}
-      <nav className="nav">
+      {/* Desktop Navigation */}
+      <nav className="nav desktop-nav">
         <div className="nav-logo">
           <span className="logo-bracket">{'<'}</span>
           <span className="logo-name">Edgar Pecson</span>
@@ -24,6 +24,53 @@ function AboutPage({ onNavigateToHome }) {
           <a href="#" onClick={(e) => { e.preventDefault(); onNavigateToHome('contact'); }}>Contact</a>
         </div>
       </nav>
+
+      {/* Mobile Top Bar */}
+      <div className="mobile-top-bar">
+        <div className="mobile-logo">
+          <span className="logo-bracket">{'<'}</span>
+          <span className="logo-name">Edgar</span>
+          <span className="logo-bracket">{'/>'}</span>
+        </div>
+        <button className="hamburger-btn" onClick={() => {
+          document.querySelector('.hamburger-menu')?.classList.toggle('open');
+        }}>
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+
+      {/* Hamburger Menu Overlay */}
+      <div className="hamburger-menu">
+        <button className="hamburger-close" onClick={() => {
+          document.querySelector('.hamburger-menu')?.classList.remove('open');
+        }}>
+          ✕
+        </button>
+        <nav className="hamburger-nav">
+          <a href="#" onClick={(e) => { 
+            e.preventDefault(); 
+            onNavigateToHome('home'); 
+            document.querySelector('.hamburger-menu')?.classList.remove('open');
+          }}>Home</a>
+          <a href="#" onClick={(e) => { 
+            e.preventDefault(); 
+            onNavigateToHome('expertise'); 
+            document.querySelector('.hamburger-menu')?.classList.remove('open');
+          }}>Expertise</a>
+          <div className="hamburger-divider"></div>
+          <a href="https://github.com/edgarpecson" target="_blank" rel="noopener noreferrer">
+            <span className="hamburger-icon">🐙</span> GitHub
+          </a>
+          <a href="https://linkedin.com/in/edgarpecson" target="_blank" rel="noopener noreferrer">
+            <span className="hamburger-icon">💼</span> LinkedIn
+          </a>
+          <a href="/resume.pdf" target="_blank" rel="noopener noreferrer">
+            <span className="hamburger-icon">📄</span> Download Resume
+          </a>
+        </nav>
+      </div>
 
       {/* About Section */}
       <section className="about-full-page">
@@ -98,6 +145,23 @@ function AboutPage({ onNavigateToHome }) {
       <footer className="footer">
         <p>© 2026 Edgar Pecson • Database Engineer • Cloud Architect</p>
       </footer>
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="mobile-bottom-nav">
+        <button className="bottom-nav-item" onClick={() => onNavigateToHome('home')}>
+          <span className="nav-icon">🏠</span>
+          <span className="nav-label">Home</span>
+        </button>
+        <button className="bottom-nav-item bottom-nav-demo" onClick={() => onNavigateToHome('demo')}>
+          <span className="nav-icon">⚡</span>
+          <span className="nav-label">DEMO</span>
+          <span className="live-badge">Live</span>
+        </button>
+        <button className="bottom-nav-item" onClick={() => onNavigateToHome('contact')}>
+          <span className="nav-icon">📧</span>
+          <span className="nav-label">Contact</span>
+        </button>
+      </nav>
     </div>
   );
 }

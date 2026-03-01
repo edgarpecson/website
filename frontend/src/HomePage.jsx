@@ -1,14 +1,21 @@
 import React from 'react';
 
 function HomePage({ onNavigateToDemo, onNavigateToAbout }) {
+  const scrollToSection = (sectionId) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="home-page">
       {/* Animated Background */}
       <div className="bg-grid"></div>
       <div className="bg-gradient"></div>
 
-      {/* Navigation */}
-      <nav className="nav">
+      {/* Desktop Navigation */}
+      <nav className="nav desktop-nav">
         <div className="nav-logo">
           <span className="logo-bracket">{'<'}</span>
           <span className="logo-name">Edgar Pecson</span>
@@ -24,6 +31,51 @@ function HomePage({ onNavigateToDemo, onNavigateToAbout }) {
           <a href="#contact">Contact</a>
         </div>
       </nav>
+
+      {/* Mobile Top Bar */}
+      <div className="mobile-top-bar">
+        <div className="mobile-logo">
+          <span className="logo-bracket">{'<'}</span>
+          <span className="logo-name">Edgar</span>
+          <span className="logo-bracket">{'/>'}</span>
+        </div>
+        <button className="hamburger-btn" onClick={() => {
+          document.querySelector('.hamburger-menu')?.classList.toggle('open');
+        }}>
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+
+      {/* Hamburger Menu Overlay */}
+      <div className="hamburger-menu">
+        <button className="hamburger-close" onClick={() => {
+          document.querySelector('.hamburger-menu')?.classList.remove('open');
+        }}>
+          ✕
+        </button>
+        <nav className="hamburger-nav">
+          <a href="#" onClick={(e) => { 
+            e.preventDefault(); 
+            onNavigateToAbout(); 
+            document.querySelector('.hamburger-menu')?.classList.remove('open');
+          }}>About Me</a>
+          <a href="#expertise" onClick={() => {
+            document.querySelector('.hamburger-menu')?.classList.remove('open');
+          }}>Expertise</a>
+          <div className="hamburger-divider"></div>
+          <a href="https://github.com/edgarpecson" target="_blank" rel="noopener noreferrer">
+            <span className="hamburger-icon">🐙</span> GitHub
+          </a>
+          <a href="https://linkedin.com/in/edgarpecson" target="_blank" rel="noopener noreferrer">
+            <span className="hamburger-icon">💼</span> LinkedIn
+          </a>
+          <a href="/resume.pdf" target="_blank" rel="noopener noreferrer">
+            <span className="hamburger-icon">📄</span> Download Resume
+          </a>
+        </nav>
+      </div>
 
       {/* Hero Section - Centered */}
       <section id="hero" className="hero">
@@ -207,6 +259,23 @@ function HomePage({ onNavigateToDemo, onNavigateToAbout }) {
       <footer className="footer">
         <p>© 2026 Edgar Pecson • Database Engineer • Cloud Architect</p>
       </footer>
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="mobile-bottom-nav">
+        <button className="bottom-nav-item" onClick={() => scrollToSection('hero')}>
+          <span className="nav-icon">🏠</span>
+          <span className="nav-label">Home</span>
+        </button>
+        <button className="bottom-nav-item bottom-nav-demo" onClick={onNavigateToDemo}>
+          <span className="nav-icon">⚡</span>
+          <span className="nav-label">DEMO</span>
+          <span className="live-badge">Live</span>
+        </button>
+        <button className="bottom-nav-item" onClick={() => scrollToSection('contact')}>
+          <span className="nav-icon">📧</span>
+          <span className="nav-label">Contact</span>
+        </button>
+      </nav>
     </div>
   );
 }
