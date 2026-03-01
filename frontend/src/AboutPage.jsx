@@ -30,53 +30,65 @@ function AboutPage({ onNavigateToHome }) {
         <div className="about-container">
           <div className="section-header">
             <h2 className="section-title">About Me</h2>
-            <p className="section-subtitle">Senior Database Engineer with a passion for building reliable systems</p>
+            <p className="section-subtitle">How one mistake at 3 AM turned into a 10-year career</p>
           </div>
 
           <div className="about-content">
             <div className="about-text">
               <p className="about-intro">
-                I'm Edgar Pecson, a Senior Database Engineer with over 10 years of experience designing, 
-                implementing, and maintaining mission-critical database systems at enterprise scale.
+                I crashed a production database at 3:47 AM on a Tuesday. That's how I became a database engineer.
               </p>
               
               <p>
-                My expertise spans across Oracle Database administration, cloud infrastructure automation, 
-                and high-performance data architectures. I specialize in building systems that need to run 
-                24/7 with 99.99% uptime while handling millions of transactions per day.
+                I was a junior developer at a startup, running what I thought was a harmless UPDATE query. 
+                Forgot the WHERE clause. 8 million rows updated. Website went down. CEO called at 4 AM. 
+                I spent the next 6 hours learning everything about Oracle RMAN backups and point-in-time recovery.
               </p>
 
               <p>
-                Throughout my career, I've worked with Fortune 500 companies and fast-growing startups, 
-                helping them scale their database infrastructure from gigabytes to petabytes. I'm passionate 
-                about automation, performance optimization, and disaster recovery planning.
+                That was 10 years ago. Since then, I've prevented that exact scenario from happening to dozens 
+                of companies. I've architected systems managing 5+ petabytes of data for Fortune 500 companies 
+                and fast-growing startups. Oracle, PostgreSQL, MySQL, AWS RDS — if it stores data at scale, 
+                I've probably broken it, fixed it, and optimized it.
+              </p>
+
+              <p>
+                These days, I specialize in the problems that wake CTOs up at night: zero-downtime migrations, 
+                disaster recovery planning, and making databases run so well that nobody thinks about them. 
+                Because the best database is the one you never worry about.
               </p>
 
               <div className="about-highlights">
                 <div className="highlight-item">
                   <div className="highlight-icon">🎯</div>
                   <div className="highlight-content">
-                    <h4>Mission</h4>
-                    <p>Building reliable, scalable database systems that power critical business operations</p>
+                    <h4>What Drives Me</h4>
+                    <p>Building systems so reliable that 3 AM pages become rare events, not regular occurrences</p>
                   </div>
                 </div>
 
                 <div className="highlight-item">
                   <div className="highlight-icon">💡</div>
                   <div className="highlight-content">
-                    <h4>Approach</h4>
-                    <p>Combining deep technical expertise with automation and modern DevOps practices</p>
+                    <h4>My Approach</h4>
+                    <p>Automate everything, monitor obsessively, and plan for failure before it happens</p>
                   </div>
                 </div>
 
                 <div className="highlight-item">
                   <div className="highlight-icon">🚀</div>
                   <div className="highlight-content">
-                    <h4>Focus</h4>
-                    <p>Performance tuning, disaster recovery, and infrastructure-as-code for database systems</p>
+                    <h4>What I'm Best At</h4>
+                    <p>Turning "our database is too slow" into "wait, did we just handle Black Friday traffic?"</p>
                   </div>
                 </div>
               </div>
+
+              <p className="about-closer">
+                Want to know if I can help with your database challenges? The live demo on this site is 
+                actually controlling a real Oracle database on AWS. If that doesn't prove I know what I'm 
+                doing, I don't know what will.
+              </p>
             </div>
           </div>
         </div>
