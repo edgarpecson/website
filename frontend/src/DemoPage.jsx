@@ -40,10 +40,17 @@ function DemoPage({ onNavigateToHome }) {
         const data = await res.json();
         const newStatus = data.status || 'unknown';
         
+        // Update loading message with current status
+        if (isLoading && loadingMessage.includes('Starting EC2')) {
+          setLoadingMessage(`Starting EC2 instance... Current status: ${newStatus}`);
+        }
+        
         // Update last log message if status changed
         if (prevEc2Status !== newStatus && prevEc2Status !== 'checking') {
           if (newStatus === 'running' && lastLogMessageRef.current.includes('Starting EC2')) {
             updateLastLog('Instance is now running');
+            setIsLoading(false);
+            setLoadingMessage('');
             
             // Tour: Show success animation when EC2 actually starts
             if (tourActive && tourStep === 0) {
@@ -83,9 +90,9 @@ function DemoPage({ onNavigateToHome }) {
     };
 
     fetchStatus();
-    const interval = setInterval(fetchStatus, 8000);
+    const interval = setInterval(fetchStatus, 5000); // Poll every 5 seconds
     return () => clearInterval(interval);
-  }, [prevEc2Status, tourActive, tourStep]);
+  }, [prevEc2Status, tourActive, tourStep, isLoading, loadingMessage]);
 
   // Poll Oracle status
   useEffect(() => {
@@ -95,10 +102,17 @@ function DemoPage({ onNavigateToHome }) {
         const data = await res.json();
         const newStatus = data.status || 'unknown';
         
+        // Update loading message with current status
+        if (isLoading && loadingMessage.includes('Starting Oracle')) {
+          setLoadingMessage(`Starting Oracle Database... Current status: ${newStatus}`);
+        }
+        
         // Update last log message if status changed
         if (prevOracleStatus !== newStatus && prevOracleStatus !== 'checking') {
           if (newStatus === 'OPEN' && lastLogMessageRef.current.includes('Starting Oracle')) {
             updateLastLog('Database is now running');
+            setIsLoading(false);
+            setLoadingMessage('');
             
             // Tour: Show success animation when Oracle actually opens
             if (tourActive && tourStep === 1) {
@@ -131,9 +145,9 @@ function DemoPage({ onNavigateToHome }) {
     };
 
     fetchOracleStatus();
-    const interval = setInterval(fetchOracleStatus, 10000);
+    const interval = setInterval(fetchOracleStatus, 5000); // Poll every 5 seconds
     return () => clearInterval(interval);
-  }, [prevOracleStatus, tourActive, tourStep]);
+  }, [prevOracleStatus, tourActive, tourStep, isLoading, loadingMessage]);
 
   const addLog = (message, type = 'info') => {
     const timestamp = new Date().toLocaleTimeString();
@@ -204,30 +218,16 @@ function DemoPage({ onNavigateToHome }) {
     setIsLoading(true);
     setTourStepCompleted(false);
     setShowContinueButton(false);
+    setLoadingMessage('Starting EC2 instance...');
     addLog('Starting EC2 instance...', 'info');
-    
-    const steps = [
-      { message: 'Sent start command to AWS', completed: true },
-      { message: 'AWS accepted request', completed: false },
-      { message: 'Instance state: pending', completed: false },
-      { message: 'Booting operating system...', completed: false },
-      { message: 'Waiting for network...', completed: false },
-      { message: 'Checking SSH access...', completed: false }
-    ];
-    
-    setLoadingMessage('Sending start command to AWS...');
-    simulateProgress(30, steps);
     
     try {
       await fetch(`${API_BASE}/start-ec2`, { method: 'POST' });
-      // Don't show success yet - wait for actual status to change
-      setIsLoading(false);
-      setLoadingProgress(0);
-      setLoadingSteps([]);
+      // Don't hide loading - wait for status to change to 'running'
     } catch (err) {
       addLog('Failed to start EC2 instance', 'error');
       setIsLoading(false);
-      setLoadingProgress(0);
+      setLoadingMessage('');
     }
   };
 
@@ -256,18 +256,8 @@ function DemoPage({ onNavigateToHome }) {
     setIsLoading(true);
     setTourStepCompleted(false);
     setShowContinueButton(false);
+    setLoadingMessage('Starting Oracle Database...');
     addLog('Starting Oracle Database...', 'info');
-    
-    const steps = [
-      { message: 'Executing dbstart command', completed: true },
-      { message: 'Reading init parameters', completed: false },
-      { message: 'Allocating SGA memory', completed: false },
-      { message: 'Opening control files', completed: false },
-      { message: 'Mounting database...', completed: false },
-      { message: 'Starting listener service...', completed: false }
-    ];
-    
-    simulateProgress(45, steps);
     
     try {
       const res = await fetch(`${API_BASE}/start-oracle`, { method: 'POST' });
@@ -275,13 +265,11 @@ function DemoPage({ onNavigateToHome }) {
       if (data.output) {
         setConsoleOutput(data.output);
       }
-      // Don't show success yet - wait for actual status to change
-      setIsLoading(false);
-      setLoadingProgress(0);
-      setLoadingSteps([]);
+      // Don't hide loading - wait for status to change to 'OPEN'
     } catch (err) {
       addLog('Failed to start Oracle Database', 'error');
       setIsLoading(false);
+      setLoadingMessage('');
     }
   };
 
@@ -543,44 +531,11 @@ function DemoPage({ onNavigateToHome }) {
         </p>
 
         {/* Loading Overlay */}
-        {isLoading && loadingSteps.length > 0 && (
+        {isLoading && (
           <div className="loading-overlay">
             <div className="loading-content">
-              <div className="loading-header">
-                <span className="loading-icon">🚀</span>
-                <h3 className="loading-title">{loadingMessage || 'Processing...'}</h3>
-              </div>
-              
-              <div className="loading-progress-bar">
-                <div className="loading-progress-fill" style={{ width: `${loadingProgress}%` }}></div>
-                <span className="loading-progress-text">{Math.round(loadingProgress)}%</span>
-              </div>
-              
-              <div className="loading-steps">
-                {loadingSteps.map((step, index) => (
-                  <div key={index} className={`loading-step ${index < Math.floor(loadingSteps.length * (loadingProgress / 100)) ? 'completed' : index === Math.floor(loadingSteps.length * (loadingProgress / 100)) ? 'current' : 'pending'}`}>
-                    <span className="loading-step-icon">
-                      {index < Math.floor(loadingSteps.length * (loadingProgress / 100)) ? '✓' : 
-                       index === Math.floor(loadingSteps.length * (loadingProgress / 100)) ? '⏳' : '⏹'}
-                    </span>
-                    <span className="loading-step-text">{step.message}</span>
-                  </div>
-                ))}
-              </div>
-              
-              {timeRemaining > 0 && (
-                <div className="loading-footer">
-                  <p className="loading-time">Estimated time remaining: {timeRemaining} seconds</p>
-                  <p className="loading-context">
-                    💡 What's happening: {
-                      loadingMessage.includes('EC2') ? 'AWS is allocating compute resources, booting the Linux OS, and initializing network services.' :
-                      loadingMessage.includes('Oracle') ? 'Oracle is starting the instance, allocating memory (SGA), and opening the database files.' :
-                      loadingMessage.includes('RMAN') ? 'RMAN is creating a full database backup to the fast recovery area.' :
-                      'Executing command on the remote server via SSH.'
-                    }
-                  </p>
-                </div>
-              )}
+              <div className="loading-spinner"></div>
+              <h3 className="loading-title">{loadingMessage || 'Processing...'}</h3>
             </div>
           </div>
         )}
