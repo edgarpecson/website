@@ -2627,3 +2627,74 @@ section {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
+
+/* Tour Spotlight Effect - Circular */
+.tour-spotlight {
+  position: relative;
+  z-index: 100;
+  box-shadow: 
+    0 0 0 4px var(--primary),
+    0 0 20px 8px var(--primary-glow),
+    0 0 40px 16px rgba(0, 217, 255, 0.3);
+  animation: spotlightPulse 2s infinite;
+}
+
+@keyframes spotlightPulse {
+  0%, 100% {
+    box-shadow: 
+      0 0 0 4px var(--primary),
+      0 0 20px 8px var(--primary-glow),
+      0 0 40px 16px rgba(0, 217, 255, 0.3);
+  }
+  50% {
+    box-shadow: 
+      0 0 0 6px var(--primary),
+      0 0 30px 12px var(--primary-glow),
+      0 0 60px 24px rgba(0, 217, 255, 0.5);
+  }
+}
+
+/* Tour Dimmed - 40% opacity */
+.tour-dimmed {
+  opacity: 0.4;
+  pointer-events: none;
+  filter: grayscale(20%);
+}
+
+/* Tour Highlight - Full opacity */
+.tour-highlight {
+  opacity: 1;
+  position: relative;
+  z-index: 10;
+}
+
+/* Continue Button in Instruction Box */
+.tour-continue-btn {
+  width: 100%;
+  padding: var(--space-md) var(--space-xl);
+  background: var(--accent);
+  color: var(--bg-dark);
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: var(--space-md);
+  font-family: var(--font-display);
+}
+
+.tour-continue-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 20px rgba(0, 255, 159, 0.5);
+}
+
+/* Activity Log Dimmed During Tour */
+.activity-section-standalone.tour-dimmed {
+  opacity: 0.3;
+}
+
+/* Terminal Dimmed During Tour */
+.output-section.tour-dimmed {
+  opacity: 0.3;
+}
