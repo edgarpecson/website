@@ -345,7 +345,15 @@ function DemoPage({ onNavigateToHome }) {
   const startTour = () => {
     setShowTourWelcome(false);
     setTourActive(true);
-    setTourStep(0);
+    
+    // Smart detection: Skip already-running components
+    if (ec2Status === 'running' && oracleStatus === 'OPEN') {
+      setTourStep(2); // Both running, go to commands
+    } else if (ec2Status === 'running') {
+      setTourStep(1); // EC2 running, start with Oracle
+    } else {
+      setTourStep(0); // Start from beginning
+    }
   };
 
   const skipTour = () => {
@@ -673,70 +681,120 @@ function DemoPage({ onNavigateToHome }) {
         </div>
 
         {/* Commands Section */}
-        <div className="commands-section">
+        <div className={`commands-section ${tourActive && (tourStep === 2 || tourStep === 3) ? 'tour-highlight' : tourActive ? 'tour-dimmed' : ''}`}>
+          {tourActive && tourStep === 2 && (
+            <div className="tour-instruction">
+              <h3 className="tour-instruction-title">Step 3: Run System Diagnostics</h3>
+              <p className="tour-instruction-text">
+                Let's check the server's resources. These are safe, read-only commands 
+                that won't change anything on the system.
+              </p>
+              <p className="tour-instruction-cta">Try clicking one of the system commands:</p>
+            </div>
+          )}
+          
+          {tourActive && tourStep === 3 && (
+            <div className="tour-instruction">
+              <h3 className="tour-instruction-title">Step 4: Run Oracle Database Command</h3>
+              <p className="tour-instruction-text">
+                Now let's interact with the actual database. We'll check the listener service.
+              </p>
+              <p className="tour-instruction-context">
+                💡 The listener is the service that accepts database connections. 
+                Think of it like a receptionist for your database.
+              </p>
+              <p className="tour-instruction-cta">Try clicking an Oracle command:</p>
+            </div>
+          )}
+          
           <h2 className="section-heading">Commands</h2>
           <p className="section-description">
             Quick diagnostic tools and database utilities. Click any command to see 
             real-time output in the terminal below.
           </p>
           
-          <div className="command-buttons">
-            <button 
-              onClick={() => runConsoleCommand('df', 'df -h (Disk)')} 
-              className="cmd-button" 
-              disabled={!canRunSystemCommands}
-            >
-              df -h (Disk)
-            </button>
-            <button 
-              onClick={() => runConsoleCommand('uptime', 'uptime')} 
-              className="cmd-button" 
-              disabled={!canRunSystemCommands}
-            >
-              uptime
-            </button>
-            <button 
-              onClick={() => runConsoleCommand('free', 'free -h (Memory)')} 
-              className="cmd-button" 
-              disabled={!canRunSystemCommands}
-            >
-              free -h (Memory)
-            </button>
-            <button 
-              onClick={() => runConsoleCommand('top', 'top (Brief)')} 
-              className="cmd-button" 
-              disabled={!canRunSystemCommands}
-            >
-              top (Brief)
-            </button>
-            <button 
-              onClick={runRMANDemo} 
-              className="cmd-button" 
-              disabled={!canRunOracleCommands}
-            >
-              RMAN Backup
-            </button>
-            <button 
-              onClick={() => runConsoleCommand('listener_status', 'Listener Status')} 
-              className="cmd-button" 
-              disabled={!canRunOracleCommands}
-            >
-              Listener Status
-            </button>
-            <button 
-              onClick={() => runConsoleCommand('view_startup_log', 'View Startup Log')} 
-              className="cmd-button" 
-              disabled={!canRunOracleCommands}
-            >
-              View Startup Log
-            </button>
-            <button 
-              onClick={() => runConsoleCommand('view_shutdown_log', 'View Shutdown Log')} 
-              className="cmd-button" 
-              disabled={!canRunOracleCommands}
-            >
-              View Shutdown Log
-            </button>
+          <div className="command-category">
+            <h3 className="command-category-title">💻 System Diagnostics</h3>
+            <div className="command-buttons">
+              <button 
+                onClick={() => runConsoleCommand('df', 'df -h (Disk)')} 
+                className={`cmd-button ${tourActive && tourStep === 2 ? 'tour-pulse' : ''}`}
+                disabled={!canRunSystemCommands}
+                title="Check disk usage"
+              >
+                💾 Disk<br/>
+                <span className="cmd-subtitle">df -h</span>
+              </button>
+              <button 
+                onClick={() => runConsoleCommand('uptime', 'uptime')} 
+                className="cmd-button" 
+                disabled={!canRunSystemCommands}
+                title="Check server uptime"
+              >
+                ⏱️ Uptime<br/>
+                <span className="cmd-subtitle">uptime</span>
+              </button>
+              <button 
+                onClick={() => runConsoleCommand('free', 'free -h (Memory)')} 
+                className="cmd-button" 
+                disabled={!canRunSystemCommands}
+                title="Check memory usage"
+              >
+                🧠 RAM<br/>
+                <span className="cmd-subtitle">free -h</span>
+              </button>
+              <button 
+                onClick={() => runConsoleCommand('top', 'top (Brief)')} 
+                className="cmd-button" 
+                disabled={!canRunSystemCommands}
+                title="Check CPU usage"
+              >
+                📊 CPU<br/>
+                <span className="cmd-subtitle">top</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="command-category">
+            <h3 className="command-category-title">🗄️ Database Operations</h3>
+            <div className="command-buttons">
+              <button 
+                onClick={runRMANDemo} 
+                className={`cmd-button ${tourActive && tourStep === 3 ? 'tour-pulse' : ''}`}
+                disabled={!canRunOracleCommands}
+                title="Run RMAN backup simulation (~30 seconds)"
+              >
+                💾 RMAN<br/>
+                <span className="cmd-subtitle">Backup</span>
+              </button>
+              <button 
+                onClick={() => runConsoleCommand('listener_status', 'Listener Status')} 
+                className="cmd-button" 
+                disabled={!canRunOracleCommands}
+                title="Check listener service status"
+              >
+                🎧 Listener<br/>
+                <span className="cmd-subtitle">Status</span>
+              </button>
+              <button 
+                onClick={() => runConsoleCommand('view_startup_log', 'Startup Log')} 
+                className="cmd-button" 
+                disabled={!canRunOracleCommands}
+                title="View database startup logs"
+              >
+                📜 Startup<br/>
+                <span className="cmd-subtitle">Log</span>
+              </button>
+              <button 
+                onClick={() => runConsoleCommand('view_shutdown_log', 'Shutdown Log')} 
+                className="cmd-button" 
+                disabled={!canRunOracleCommands}
+                title="View database shutdown logs"
+              >
+                📜 Shutdown<br/>
+                <span className="cmd-subtitle">Log</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -755,6 +813,68 @@ function DemoPage({ onNavigateToHome }) {
             )}
           </div>
         </div>
+
+        {/* Tour Completion Screen */}
+        {tourActive && tourStep === 4 && (
+          <div className="tour-completion">
+            <div className="tour-completion-content">
+              <div className="tour-completion-icon">🎉</div>
+              <h2 className="tour-completion-title">Tour Complete! You're a Pro Now!</h2>
+              
+              <div className="tour-completion-checklist">
+                <h3>You just:</h3>
+                <div className="tour-completion-item">
+                  <span className="tour-completion-check">✓</span>
+                  <span>Started an AWS EC2 instance</span>
+                </div>
+                <div className="tour-completion-item">
+                  <span className="tour-completion-check">✓</span>
+                  <span>Booted an Oracle 19c database</span>
+                </div>
+                <div className="tour-completion-item">
+                  <span className="tour-completion-check">✓</span>
+                  <span>Ran system diagnostic commands</span>
+                </div>
+                <div className="tour-completion-item">
+                  <span className="tour-completion-check">✓</span>
+                  <span>Checked database services</span>
+                </div>
+              </div>
+
+              <p className="tour-completion-message">
+                All of this was controlling <strong>REAL infrastructure</strong> running in AWS. 
+                Not a simulation. Not a demo backend. Actual cloud resources.
+              </p>
+
+              <div className="tour-completion-actions">
+                <button className="tour-completion-btn tour-completion-btn-primary" onClick={completeTour}>
+                  🚀 Explore on Your Own
+                </button>
+                <button className="tour-completion-btn tour-completion-btn-secondary" onClick={restartTour}>
+                  🔄 Restart Tour
+                </button>
+              </div>
+
+              <div className="tour-completion-cta">
+                <p className="tour-completion-cta-text">Like what you see?</p>
+                <div className="tour-completion-links">
+                  <button className="tour-completion-link" onClick={() => {
+                    completeTour();
+                    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                  }}>
+                    📧 Get in Touch
+                  </button>
+                  <button className="tour-completion-link" onClick={() => {
+                    completeTour();
+                    onNavigateToHome('home');
+                  }}>
+                    🏠 Back to Portfolio
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
