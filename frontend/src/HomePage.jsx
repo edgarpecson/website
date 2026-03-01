@@ -116,7 +116,7 @@ function HomePage({ onNavigateToDemo, onNavigateToAbout }) {
 
       <section id="hero" className="hero">
         <div className="hero-content">
-          <h1 className="hero-title">Legacy Oracle Systems Expert | AWS Migration | Python & AI Process Automation</h1>
+          <h1 className="hero-title-compact">Senior Oracle DBA | AWS Cloud | Full-Stack Development | AI Automation</h1>
           <p className="hero-subtitle">
             Full-time opportunities | Contract work | Ongoing support for enterprise Oracle systems transitioning to AWS
           </p>
@@ -155,22 +155,12 @@ function HomePage({ onNavigateToDemo, onNavigateToAbout }) {
       </section>
 
       <section id="contact" className="contact-section">
-        <h2 className="section-title">Get in Touch</h2>
-        
         <div className="contact-options">
           <div className="contact-option">
             <span className="option-icon">🚨</span>
             <h3>Emergency Database Recovery</h3>
             <p>Critical production issues need immediate attention</p>
             <span className="option-meta">24-hour response • Fixed-rate</span>
-            <div className="contact-links">
-              <a href="mailto:edgar.pecson@gmail.com?subject=Emergency Database Recovery" className="contact-link contact-link-primary">
-                <div className="link-text">
-                  <span className="link-title">Email Me</span>
-                  <span className="link-subtitle">edgar.pecson@gmail.com</span>
-                </div>
-              </a>
-            </div>
           </div>
 
           <div className="contact-option">
@@ -178,35 +168,13 @@ function HomePage({ onNavigateToDemo, onNavigateToAbout }) {
             <h3>Infrastructure Audit</h3>
             <p>Comprehensive assessment of your database infrastructure</p>
             <span className="option-meta">2-week engagement • Detailed report</span>
-            <div className="contact-links">
-              <a href="mailto:edgar.pecson@gmail.com?subject=Infrastructure Audit" className="contact-link">
-                <div className="link-text">
-                  <span className="link-title">Email Me</span>
-                  <span className="link-subtitle">edgar.pecson@gmail.com</span>
-                </div>
-              </a>
-            </div>
           </div>
 
           <div className="contact-option">
-            <span className="option-icon">🚀</span>
+            <span className="option-icon">🎯</span>
             <h3>Full-Time Role</h3>
             <p>Looking for senior IC or lead database engineering positions</p>
             <span className="option-meta">Senior IC / Lead positions</span>
-            <div className="contact-links">
-              <a href="mailto:edgar.pecson@gmail.com?subject=Full-Time Opportunity" className="contact-link">
-                <div className="link-text">
-                  <span className="link-title">Email Me</span>
-                  <span className="link-subtitle">edgar.pecson@gmail.com</span>
-                </div>
-              </a>
-              <a href="https://linkedin.com/in/edgarpecson" target="_blank" rel="noopener noreferrer" className="contact-link">
-                <div className="link-text">
-                  <span className="link-title">LinkedIn</span>
-                  <span className="link-subtitle">View Profile</span>
-                </div>
-              </a>
-            </div>
           </div>
         </div>
       </section>

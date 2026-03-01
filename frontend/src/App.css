@@ -2874,3 +2874,71 @@ section {
     display: none;
   }
 }
+
+/* Compact Hero Title */
+.hero-title-compact {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: var(--space-md);
+  background: linear-gradient(135deg, var(--text-primary), var(--primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@media (max-width: 768px) {
+  .hero-title-compact {
+    font-size: 1.75rem;
+  }
+}
+
+/* Remove extra spacing from contact section without title */
+.contact-section {
+  padding: var(--space-xl);
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.contact-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-xl);
+  margin-top: var(--space-lg);
+}
+
+@media (max-width: 1024px) {
+  .contact-options {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Smaller company logos - fit all in one row */
+.companies-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: var(--space-md);
+  margin-top: var(--space-xl);
+}
+
+.company-logo {
+  padding: var(--space-md);
+  min-height: 80px;
+}
+
+.company-logo img {
+  max-width: 100px;
+  max-height: 50px;
+}
+
+@media (max-width: 1200px) {
+  .companies-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .companies-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
