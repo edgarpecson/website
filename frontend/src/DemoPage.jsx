@@ -421,6 +421,7 @@ function DemoPage({ onNavigateToHome }) {
   const completeTour = () => {
     setTourActive(false);
     setTourStep(0);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const restartTour = () => {
@@ -614,7 +615,7 @@ function DemoPage({ onNavigateToHome }) {
                     Great job! The virtual server is now online and ready. 
                     Let's move on to starting the Oracle database.
                   </p>
-                  <button className="tour-continue-btn" onClick={nextTourStep}>
+                  <button className="tour-continue-btn tour-spotlight" onClick={nextTourStep}>
                     Continue to Step 2 →
                   </button>
                 </>
@@ -629,7 +630,7 @@ function DemoPage({ onNavigateToHome }) {
             </div>
           )}
           
-          <div className={`section-content ${tourActive && tourStep === 0 ? '' : tourActive ? 'tour-dimmed' : ''}`}>
+          <div className={`section-content ${tourActive ? 'tour-dimmed' : ''}`}>
             <h2 className="section-heading">EC2 Instance Console</h2>
             <p className="section-description">
               Your virtual server running in AWS. Start it up to access your Oracle database, 
@@ -689,7 +690,7 @@ function DemoPage({ onNavigateToHome }) {
                     Perfect! The database is now OPEN and ready for queries. 
                     Next, we'll run some diagnostic commands.
                   </p>
-                  <button className="tour-continue-btn" onClick={nextTourStep}>
+                  <button className="tour-continue-btn tour-spotlight" onClick={nextTourStep}>
                     Continue to Step 3 →
                   </button>
                 </>
@@ -704,7 +705,7 @@ function DemoPage({ onNavigateToHome }) {
             </div>
           )}
           
-          <div className={`section-content ${tourActive && tourStep === 1 ? '' : tourActive ? 'tour-dimmed' : ''}`}>
+          <div className={`section-content ${tourActive ? 'tour-dimmed' : ''}`}>
             <h2 className="section-heading">Oracle 19c Instance Console</h2>
             <p className="section-description">
               Your production Oracle database. Always stop the database gracefully before 
@@ -781,7 +782,7 @@ function DemoPage({ onNavigateToHome }) {
                     Nice! You can see the output in the terminal below. 
                     Now let's try a database-specific command.
                   </p>
-                  <button className="tour-continue-btn" onClick={nextTourStep}>
+                  <button className="tour-continue-btn tour-spotlight" onClick={nextTourStep}>
                     Continue to Step 4 →
                   </button>
                 </>
@@ -811,7 +812,7 @@ function DemoPage({ onNavigateToHome }) {
             </div>
           )}
           
-          <div className={`section-content ${tourActive && (tourStep === 2 || tourStep === 3) ? '' : tourActive ? 'tour-dimmed' : ''}`}>
+          <div className={`section-content ${tourActive ? 'tour-dimmed' : ''}`}>
             <h2 className="section-heading">Commands</h2>
             <p className="section-description">
               Quick diagnostic tools and database utilities. Click any command to see 
@@ -820,7 +821,7 @@ function DemoPage({ onNavigateToHome }) {
           </div>
           
           <div className="command-category">
-            <h3 className={`command-category-title ${tourActive && tourStep === 2 ? '' : tourActive ? 'tour-dimmed' : ''}`}>💻 System Diagnostics</h3>
+            <h3 className={`command-category-title ${tourActive ? 'tour-dimmed' : ''}`}>💻 System Diagnostics</h3>
             <div className="command-buttons">
               <button 
                 onClick={() => runConsoleCommand('df', 'df -h (Disk)')} 
@@ -862,7 +863,7 @@ function DemoPage({ onNavigateToHome }) {
           </div>
 
           <div className="command-category">
-            <h3 className={`command-category-title ${tourActive && tourStep === 3 ? '' : tourActive ? 'tour-dimmed' : ''}`}>🗄️ Database Operations</h3>
+            <h3 className={`command-category-title ${tourActive ? 'tour-dimmed' : ''}`}>🗄️ Database Operations</h3>
             <div className="command-buttons">
               <button 
                 onClick={runRMANDemo} 
