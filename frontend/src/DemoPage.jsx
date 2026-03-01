@@ -19,6 +19,7 @@ function DemoPage({ onNavigateToHome }) {
   const [tourActive, setTourActive] = useState(false);
   const [tourStep, setTourStep] = useState(0);
   const [tourStepCompleted, setTourStepCompleted] = useState(false);
+  const [showContinueButton, setShowContinueButton] = useState(false);
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
   const logEndRef = useRef(null);
   const lastLogMessageRef = useRef('');
@@ -164,6 +165,7 @@ function DemoPage({ onNavigateToHome }) {
   const startEC2 = async () => {
     setIsLoading(true);
     setTourStepCompleted(false);
+    setShowContinueButton(false);
     addLog('Starting EC2 instance...', 'info');
     
     const steps = [
@@ -187,9 +189,16 @@ function DemoPage({ onNavigateToHome }) {
         setLoadingProgress(0);
         setLoadingSteps([]);
         
-        // Tour: Mark step completed and shift focus
+        // Tour: Mark step completed and show success
         if (tourActive && tourStep === 0) {
           setTourStepCompleted(true);
+          setShowSuccessAnimation(true);
+          
+          // Show Continue button AFTER success animation (3 seconds)
+          setTimeout(() => {
+            setShowSuccessAnimation(false);
+            setShowContinueButton(true);
+          }, 3000);
         }
       }, 1000);
     } catch (err) {
@@ -228,6 +237,7 @@ function DemoPage({ onNavigateToHome }) {
   const startOracle = async () => {
     setIsLoading(true);
     setTourStepCompleted(false);
+    setShowContinueButton(false);
     addLog('Starting Oracle Database...', 'info');
     
     const steps = [
@@ -253,9 +263,16 @@ function DemoPage({ onNavigateToHome }) {
         setLoadingProgress(0);
         setLoadingSteps([]);
         
-        // Tour: Mark step completed and shift focus
+        // Tour: Mark step completed and show success
         if (tourActive && tourStep === 1) {
           setTourStepCompleted(true);
+          setShowSuccessAnimation(true);
+          
+          // Show Continue button AFTER success animation (3 seconds)
+          setTimeout(() => {
+            setShowSuccessAnimation(false);
+            setShowContinueButton(true);
+          }, 3000);
         }
       }, 1000);
     } catch (err) {
@@ -297,6 +314,7 @@ function DemoPage({ onNavigateToHome }) {
   const runConsoleCommand = async (cmd, label) => {
     setIsLoading(true);
     setTourStepCompleted(false);
+    setShowContinueButton(false);
     setLoadingMessage(`Executing ${label || cmd}...`);
     addLog(`Running: ${label || cmd}`, 'info');
     
@@ -306,9 +324,21 @@ function DemoPage({ onNavigateToHome }) {
       setConsoleOutput(data.output || data.message || 'No output');
       addLog(`Command completed: ${label || cmd}`, 'success');
       
-      // Tour: Mark step completed
+      // Tour Step 3: Mark completed and show Continue after brief delay
       if (tourActive && tourStep === 2) {
         setTourStepCompleted(true);
+        setTimeout(() => {
+          setShowContinueButton(true);
+        }, 1500);
+      }
+      
+      // Tour Step 4: Auto-complete tour after any database command
+      if (tourActive && tourStep === 3) {
+        setShowSuccessAnimation(true);
+        setTimeout(() => {
+          setShowSuccessAnimation(false);
+          setTourStep(4); // Go to completion screen
+        }, 2000);
       }
     } catch (err) {
       setConsoleOutput('Command failed');
@@ -321,6 +351,7 @@ function DemoPage({ onNavigateToHome }) {
   const runRMANDemo = async () => {
     setIsLoading(true);
     setTourStepCompleted(false);
+    setShowContinueButton(false);
     addLog('Running RMAN backup simulation...', 'info');
     
     const steps = [
@@ -343,9 +374,13 @@ function DemoPage({ onNavigateToHome }) {
         setLoadingProgress(0);
         setLoadingSteps([]);
         
-        // Tour: Mark step completed
+        // Tour Step 4: Auto-complete tour after any database command
         if (tourActive && tourStep === 3) {
-          setTourStepCompleted(true);
+          setShowSuccessAnimation(true);
+          setTimeout(() => {
+            setShowSuccessAnimation(false);
+            setTourStep(4); // Go to completion screen
+          }, 2000);
         }
       }, 1000);
     } catch (err) {
@@ -375,6 +410,7 @@ function DemoPage({ onNavigateToHome }) {
 
   const nextTourStep = () => {
     setTourStepCompleted(false);
+    setShowContinueButton(false);
     if (tourStep < 4) {
       setTourStep(tourStep + 1);
     } else {
@@ -571,7 +607,7 @@ function DemoPage({ onNavigateToHome }) {
                   </p>
                   <p className="tour-instruction-cta">Click the button below to start it:</p>
                 </>
-              ) : (
+              ) : showContinueButton ? (
                 <>
                   <h3 className="tour-instruction-title">✅ EC2 is Running!</h3>
                   <p className="tour-instruction-text">
@@ -582,19 +618,28 @@ function DemoPage({ onNavigateToHome }) {
                     Continue to Step 2 →
                   </button>
                 </>
+              ) : (
+                <>
+                  <h3 className="tour-instruction-title">⏳ Success!</h3>
+                  <p className="tour-instruction-text">
+                    EC2 instance is starting up...
+                  </p>
+                </>
               )}
             </div>
           )}
           
-          <h2 className="section-heading">EC2 Instance Console</h2>
-          <p className="section-description">
-            Your virtual server running in AWS. Start it up to access your Oracle database, 
-            or shut it down to save costs when not in use.
-          </p>
-          
-          <div className={`status-pill-large status-${ec2Status}`}>
-            <span className="status-dot"></span>
-            EC2: {ec2Status}
+          <div className={`section-content ${tourActive && tourStep === 0 ? '' : tourActive ? 'tour-dimmed' : ''}`}>
+            <h2 className="section-heading">EC2 Instance Console</h2>
+            <p className="section-description">
+              Your virtual server running in AWS. Start it up to access your Oracle database, 
+              or shut it down to save costs when not in use.
+            </p>
+            
+            <div className={`status-pill-large status-${ec2Status}`}>
+              <span className="status-dot"></span>
+              EC2: {ec2Status}
+            </div>
           </div>
 
           <div className="action-buttons-compact">
@@ -637,7 +682,7 @@ function DemoPage({ onNavigateToHome }) {
                   </p>
                   <p className="tour-instruction-cta">Click to start the database:</p>
                 </>
-              ) : (
+              ) : showContinueButton ? (
                 <>
                   <h3 className="tour-instruction-title">✅ Oracle Database is Running!</h3>
                   <p className="tour-instruction-text">
@@ -648,19 +693,28 @@ function DemoPage({ onNavigateToHome }) {
                     Continue to Step 3 →
                   </button>
                 </>
+              ) : (
+                <>
+                  <h3 className="tour-instruction-title">⏳ Success!</h3>
+                  <p className="tour-instruction-text">
+                    Oracle database is starting up...
+                  </p>
+                </>
               )}
             </div>
           )}
           
-          <h2 className="section-heading">Oracle 19c Instance Console</h2>
-          <p className="section-description">
-            Your production Oracle database. Always stop the database gracefully before 
-            stopping the EC2 instance to prevent data corruption.
-          </p>
-          
-          <div className={`status-pill-large status-${getDbPillStatus()}`}>
-            <span className="status-dot"></span>
-            {getDbPillText()}
+          <div className={`section-content ${tourActive && tourStep === 1 ? '' : tourActive ? 'tour-dimmed' : ''}`}>
+            <h2 className="section-heading">Oracle 19c Instance Console</h2>
+            <p className="section-description">
+              Your production Oracle database. Always stop the database gracefully before 
+              stopping the EC2 instance to prevent data corruption.
+            </p>
+            
+            <div className={`status-pill-large status-${getDbPillStatus()}`}>
+              <span className="status-dot"></span>
+              {getDbPillText()}
+            </div>
           </div>
 
           <div className="action-buttons-compact">
@@ -720,7 +774,7 @@ function DemoPage({ onNavigateToHome }) {
                   </p>
                   <p className="tour-instruction-cta">Try clicking any one of the system commands:</p>
                 </>
-              ) : (
+              ) : showContinueButton ? (
                 <>
                   <h3 className="tour-instruction-title">✅ Command Executed Successfully!</h3>
                   <p className="tour-instruction-text">
@@ -731,47 +785,42 @@ function DemoPage({ onNavigateToHome }) {
                     Continue to Step 4 →
                   </button>
                 </>
+              ) : (
+                <>
+                  <h3 className="tour-instruction-title">⏳ Running Command...</h3>
+                  <p className="tour-instruction-text">
+                    Executing diagnostic command...
+                  </p>
+                </>
               )}
             </div>
           )}
           
           {tourActive && tourStep === 3 && (
             <div className="tour-instruction">
-              {!tourStepCompleted ? (
-                <>
-                  <h3 className="tour-instruction-title">Step 4: Run Oracle Database Command</h3>
-                  <p className="tour-instruction-text">
-                    Now let's interact with the actual database. We'll check the listener service.
-                  </p>
-                  <p className="tour-instruction-context">
-                    💡 The listener is the service that accepts database connections. 
-                    Think of it like a receptionist for your database.
-                  </p>
-                  <p className="tour-instruction-cta">Try clicking any Oracle command:</p>
-                </>
-              ) : (
-                <>
-                  <h3 className="tour-instruction-title">✅ Database Command Complete!</h3>
-                  <p className="tour-instruction-text">
-                    Excellent! You've successfully interacted with the Oracle database. 
-                    You're ready to complete the tour!
-                  </p>
-                  <button className="tour-continue-btn" onClick={nextTourStep}>
-                    Complete Tour →
-                  </button>
-                </>
-              )}
+              <h3 className="tour-instruction-title">Step 4: Run Oracle Database Command</h3>
+              <p className="tour-instruction-text">
+                Now let's interact with the actual database. Click any Oracle command below 
+                to complete the tour!
+              </p>
+              <p className="tour-instruction-context">
+                💡 The listener is the service that accepts database connections. 
+                Think of it like a receptionist for your database.
+              </p>
+              <p className="tour-instruction-cta">Try clicking any Oracle command:</p>
             </div>
           )}
           
-          <h2 className="section-heading">Commands</h2>
-          <p className="section-description">
-            Quick diagnostic tools and database utilities. Click any command to see 
-            real-time output in the terminal below.
-          </p>
+          <div className={`section-content ${tourActive && (tourStep === 2 || tourStep === 3) ? '' : tourActive ? 'tour-dimmed' : ''}`}>
+            <h2 className="section-heading">Commands</h2>
+            <p className="section-description">
+              Quick diagnostic tools and database utilities. Click any command to see 
+              real-time output in the terminal below.
+            </p>
+          </div>
           
           <div className="command-category">
-            <h3 className="command-category-title">💻 System Diagnostics</h3>
+            <h3 className={`command-category-title ${tourActive && tourStep === 2 ? '' : tourActive ? 'tour-dimmed' : ''}`}>💻 System Diagnostics</h3>
             <div className="command-buttons">
               <button 
                 onClick={() => runConsoleCommand('df', 'df -h (Disk)')} 
@@ -813,7 +862,7 @@ function DemoPage({ onNavigateToHome }) {
           </div>
 
           <div className="command-category">
-            <h3 className="command-category-title">🗄️ Database Operations</h3>
+            <h3 className={`command-category-title ${tourActive && tourStep === 3 ? '' : tourActive ? 'tour-dimmed' : ''}`}>🗄️ Database Operations</h3>
             <div className="command-buttons">
               <button 
                 onClick={runRMANDemo} 
