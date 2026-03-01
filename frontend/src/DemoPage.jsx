@@ -43,17 +43,15 @@ function DemoPage({ onNavigateToHome }) {
         // Update loading message with current status
         if (isLoading && loadingMessage.includes('Starting EC2')) {
           setLoadingMessage(`Starting EC2 instance... Current status: ${newStatus}`);
-        }
-        
-        // Update last log message if status changed
-        if (prevEc2Status !== newStatus && prevEc2Status !== 'checking') {
-          if (newStatus === 'running' && lastLogMessageRef.current.includes('Starting EC2')) {
+          
+          // Close loading if status IS running (not just changed to running)
+          if (newStatus === 'running') {
             updateLastLog('Instance is now running');
             setIsLoading(false);
             setLoadingMessage('');
             
-            // Tour: Show success animation when EC2 actually starts
-            if (tourActive && tourStep === 0) {
+            // Tour: Show success animation
+            if (tourActive && tourStep === 0 && !tourStepCompleted) {
               setTourStepCompleted(true);
               setShowSuccessAnimation(true);
               
@@ -70,11 +68,17 @@ function DemoPage({ onNavigateToHome }) {
                 }, 100);
               }, 3000);
             }
+          }
+        }
+        
+        // Also update log if status changed (for non-loading scenarios)
+        if (prevEc2Status !== newStatus && prevEc2Status !== 'checking') {
+          if (newStatus === 'running' && lastLogMessageRef.current.includes('Starting EC2')) {
+            updateLastLog('Instance is now running');
           } else if (newStatus === 'stopped' && lastLogMessageRef.current.includes('Stopping EC2')) {
             updateLastLog('Instance is now stopped');
             setIsLoading(false);
-            setLoadingProgress(0);
-            setLoadingSteps([]);
+            setLoadingMessage('');
           }
         }
         
@@ -92,7 +96,7 @@ function DemoPage({ onNavigateToHome }) {
     fetchStatus();
     const interval = setInterval(fetchStatus, 5000); // Poll every 5 seconds
     return () => clearInterval(interval);
-  }, [prevEc2Status, tourActive, tourStep, isLoading, loadingMessage]);
+  }, [prevEc2Status, tourActive, tourStep, tourStepCompleted, isLoading, loadingMessage]);
 
   // Poll Oracle status
   useEffect(() => {
@@ -105,17 +109,15 @@ function DemoPage({ onNavigateToHome }) {
         // Update loading message with current status
         if (isLoading && loadingMessage.includes('Starting Oracle')) {
           setLoadingMessage(`Starting Oracle Database... Current status: ${newStatus}`);
-        }
-        
-        // Update last log message if status changed
-        if (prevOracleStatus !== newStatus && prevOracleStatus !== 'checking') {
-          if (newStatus === 'OPEN' && lastLogMessageRef.current.includes('Starting Oracle')) {
+          
+          // Close loading if status IS OPEN (not just changed to OPEN)
+          if (newStatus === 'OPEN') {
             updateLastLog('Database is now running');
             setIsLoading(false);
             setLoadingMessage('');
             
-            // Tour: Show success animation when Oracle actually opens
-            if (tourActive && tourStep === 1) {
+            // Tour: Show success animation
+            if (tourActive && tourStep === 1 && !tourStepCompleted) {
               setTourStepCompleted(true);
               setShowSuccessAnimation(true);
               
@@ -132,6 +134,13 @@ function DemoPage({ onNavigateToHome }) {
                 }, 100);
               }, 3000);
             }
+          }
+        }
+        
+        // Also update log if status changed (for non-loading scenarios)
+        if (prevOracleStatus !== newStatus && prevOracleStatus !== 'checking') {
+          if (newStatus === 'OPEN' && lastLogMessageRef.current.includes('Starting Oracle')) {
+            updateLastLog('Database is now running');
           } else if (newStatus === 'SHUTDOWN' && lastLogMessageRef.current.includes('Stopping Oracle')) {
             updateLastLog('Database is now stopped');
           }
@@ -147,7 +156,7 @@ function DemoPage({ onNavigateToHome }) {
     fetchOracleStatus();
     const interval = setInterval(fetchOracleStatus, 5000); // Poll every 5 seconds
     return () => clearInterval(interval);
-  }, [prevOracleStatus, tourActive, tourStep, isLoading, loadingMessage]);
+  }, [prevOracleStatus, tourActive, tourStep, tourStepCompleted, isLoading, loadingMessage]);
 
   const addLog = (message, type = 'info') => {
     const timestamp = new Date().toLocaleTimeString();
