@@ -288,8 +288,6 @@ function DemoPage({ onNavigateToHome }) {
     
     const steps = [
       { message: 'Executing dbshut command', completed: true },
-      { message: 'Closing user connections', completed: false },
-      { message: 'Flushing buffers to disk', completed: false },
       { message: 'Shutting down instance', completed: false }
     ];
     
