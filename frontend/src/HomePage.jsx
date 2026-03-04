@@ -167,7 +167,7 @@ function HomePage({ onNavigateToDemo, onNavigateToAbout }) {
             <span className="option-icon">🔍</span>
             <h3>Full-Stack Development</h3>
             <p>End-to-end application building with modern JavaScript ecosystems, integrating robust backends with responsive frontends and efficient data layers</p>
-            <span className="option-meta">React + Python FastAPI backend and AWS boto3</span>
+            <span className="option-meta">React.js • Python • AWS</span>
           </div>
 
           <div className="contact-option">
