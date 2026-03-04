@@ -116,7 +116,7 @@ function HomePage({ onNavigateToDemo, onNavigateToAbout }) {
 
       <section id="hero" className="hero">
         <div className="hero-content">
-          <h1 className="hero-title-compact">Senior Oracle DBA | AWS Cloud | Full-Stack Development | AI Automation</h1>
+          <h1 className="hero-title-compact">Senior Oracle DBA | AWS Cloud | Full-Stack Development | Automation | AI</h1>
           <p className="hero-subtitle">
             Full-time opportunities | Contract work | Ongoing support for enterprise Oracle systems transitioning to AWS
           </p>
@@ -158,56 +158,87 @@ function HomePage({ onNavigateToDemo, onNavigateToAbout }) {
         <div className="contact-options">
           <div className="contact-option">
             <span className="option-icon">🚨</span>
-            <h3>Emergency Database Recovery</h3>
-            <p>Critical production issues need immediate attention</p>
-            <span className="option-meta">24-hour response • Fixed-rate</span>
+            <h3>Oracle Database Mastery</h3>
+            <p>Advanced performance tuning, high-availability architectures, PL/SQL development, large-scale migration projects</p>
+            <span className="option-meta">Oracle 19c • PostgreSQL • MongoDB</span>
           </div>
 
           <div className="contact-option">
             <span className="option-icon">🔍</span>
-            <h3>Infrastructure Audit</h3>
-            <p>Comprehensive assessment of your database infrastructure</p>
-            <span className="option-meta">2-week engagement • Detailed report</span>
+            <h3>Full-Stack Development</h3>
+            <p>End-to-end application building with modern JavaScript ecosystems, integrating robust backends with responsive frontends and efficient data layers</p>
+            <span className="option-meta">React + Python FastAPI backend and AWS boto3</span>
           </div>
 
           <div className="contact-option">
             <span className="option-icon">🎯</span>
-            <h3>Full-Time Role</h3>
-            <p>Looking for senior IC or lead database engineering positions</p>
-            <span className="option-meta">Senior IC / Lead positions</span>
+            <h3>AI-Leveraged Development & Automation</h3>
+            <p>Scripting, code generation, and autonomous agents using leading LLMs</p>
+            <span className="option-meta">Claude • Grok • OpenClaw • OpenAI</span>
           </div>
         </div>
       </section>
 
       <section id="companies" className="companies-section">
-        <h2 className="section-title">Companies I've Worked With</h2>
-        <div className="companies-grid">
-          <div className="company-logo">
-            <img src="https://www.amd.com/content/dam/amd/en/logos/amd-logo.svg" alt="AMD" />
-          </div>
-          <div className="company-logo">
-            <img src="https://www.aecom.com/wp-content/uploads/2023/02/AECOM_logo.svg" alt="AECOM" />
-          </div>
-          <div className="company-logo">
-            <span className="company-text">Scott & White</span>
-          </div>
-          <div className="company-logo">
-            <span className="company-text">FirstCare</span>
-          </div>
-          <div className="company-logo">
-            <img src="https://www.kw.com/images/kw-logo.svg" alt="Keller Williams" />
-          </div>
-          <div className="company-logo">
-            <img src="https://csvcus.homeaway.com/rsrcs/cdn-logos/2.10.0/sitename/vr-logo-new-2.svg" alt="VRBO" />
-          </div>
-          <div className="company-logo">
-            <span className="company-text">Expedia Group</span>
-          </div>
-          <div className="company-logo">
-            <img src="https://www2.deloitte.com/content/dam/assets/logos/deloitte.svg" alt="Deloitte" />
-          </div>
-        </div>
-      </section>
+  <h2 className="section-title">Companies I've Worked With</h2>
+  <div className="companies-grid">
+    <div className="company-logo">
+      <img 
+        src="https://www.amd.com/content/dam/amd/en/logos/amd-logo.svg" 
+        alt="AMD" 
+        loading="lazy" 
+      />
+    </div>
+    <div className="company-logo">
+      <img 
+        src="https://www.aecom.com/wp-content/uploads/2023/02/AECOM_logo.svg" 
+        alt="AECOM" 
+        loading="lazy" 
+      />
+    </div>
+    <div className="company-logo">
+      <img 
+        src="https://seeklogo.com/images/B/baylor-scott-white-logo-9A8E7E5E5E-seeklogo.com.svg" 
+        alt="Baylor Scott & White Health" 
+        loading="lazy" 
+      />
+      {/* Fallback if SVG not loading: <span className="company-text">Baylor Scott & White</span> */}
+    </div>
+    <div className="company-logo">
+      {/* FirstCare logo: Use brand asset or text fallback; no prominent public SVG found */}
+      <span className="company-text">FirstCare Health Plans</span>
+      {/* Alternative: If you obtain an official SVG, replace with <img src="..." alt="FirstCare Health Plans" loading="lazy" /> */}
+    </div>
+    <div className="company-logo">
+      <img 
+        src="https://www.kw.com/images/kw-logo.svg" 
+        alt="Keller Williams" 
+        loading="lazy" 
+      />
+    </div>
+    <div className="company-logo">
+      <img 
+        src="https://csvcus.homeaway.com/rsrcs/cdn-logos/2.10.0/sitename/vr-logo-new-2.svg" 
+        alt="VRBO" 
+        loading="lazy" 
+      />
+    </div>
+    <div className="company-logo">
+      <img 
+        src="https://upload.wikimedia.org/wikipedia/commons/0/0f/Expedia_Group_logo.svg" 
+        alt="Expedia Group" 
+        loading="lazy" 
+      />
+    </div>
+    <div className="company-logo">
+      <img 
+        src="https://www2.deloitte.com/content/dam/assets/logos/deloitte.svg" 
+        alt="Deloitte" 
+        loading="lazy" 
+      />
+    </div>
+  </div>
+</section>
 
       <footer className="footer">
         <div className="footer-links">
