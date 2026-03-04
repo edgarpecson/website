@@ -66,7 +66,7 @@ function AboutPage({ onNavigateToHome }) {
             <span className="hamburger-icon">💼</span> LinkedIn
           </a>
           <a href="/resume.pdf" target="_blank" rel="noopener noreferrer">
-            <span className="hamburger-icon">📄</span> Download Resume
+            <span className="hamburger-icon">📄</span> Download Resume (coming soon)
           </a>
         </nav>
       </div>
@@ -91,36 +91,22 @@ function AboutPage({ onNavigateToHome }) {
           <div className="about-content">
             <div className="about-text">
               <p className="about-intro">
-                From HP3000 reel-to-reel tape backups to Oracle 19c on AWS with Python & AI automation — 
-                my career spans three decades of database evolution.
+                Welcome to My AI + AWS Laboratory
               </p>
               
               <p>
-                I started as a system administrator supporting HP3000 MPE/iX, physically swapping reel-to-reel 
-                and DAT tapes for backups. Eventually worked my way up to Oracle Applications DBA on IBM, 
-                supporting developers and functional analysts — doing countless clones, setting up DataGuard, 
-                patching, and application configuration.
+               This website is my passion project—a dedicated laboratory for creative experimentation and hands-on exploration of modern full-stack technologies. Here, I actively test and refine techniques in React to build responsive, interactive interfaces; Python for backend scripting, automation, and orchestration; and AWS APIs and services for cloud infrastructure, compute, storage, and seamless integration. 
               </p>
 
               <p>
-                Transitioned to consulting, supporting up to 10 clients simultaneously with different Oracle 
-                Application environments. Became staff Oracle Applications DBA for VRBO, setting up their 
-                global Oracle Applications system. Later worked as consultant/contractor for Keller Williams 
-                supporting legacy Oracle 12c database and Oracle on AWS.
-              </p>
+                A central focus is the creation and management of real-world databases—particularly Oracle instances deployed in production-like environments on AWS EC2—allowing me to simulate realistic data scenarios, performance tuning, and operational workflows. Most importantly, the site enables direct, live control of these databases from the browser, providing a tangible demonstration of end-to-end connectivity, security considerations, and practical application. 
 
               <p>
-                Currently with Deloitte as a Solution Specialist for the Dept of Education, supporting Oracle 
-                19c on AWS EC2 and WebLogic running Java. Integrating Python scripts for daily processes and 
-                supporting functional/developer teams on applications.
+                Every element you see here, much of it shaped and refined with AI assistance, represents an ongoing effort to push technical boundaries and explore what is possible when these tools are combined in creative ways. I hope these experiments inspire you to pursue the same sense of curiosity and possibilities!
+              </p>
               </p>
 
-              <p>
-                <strong>What I bring:</strong> The rare combination of deep legacy Oracle expertise AND modern 
-                cloud/automation skills. I can maintain your 20-year-old Oracle system while building Python 
-                scripts and AI-powered automation to modernize your processes.
-              </p>
-
+          
               <p className="about-closer">
                 Want to see my work in action? The live demo on this site is actually controlling a real 
                 Oracle 19c database on AWS EC2. If that doesn't prove I know what I'm doing, I don't know what will.
