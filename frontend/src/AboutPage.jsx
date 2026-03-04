@@ -91,17 +91,24 @@ function AboutPage({ onNavigateToHome }) {
           <div className="about-content">
             <div className="about-text">
               <p className="about-intro">
-                
+                ...
               </p>
               
               <p>
-               This site is basically my Lab — a place where I get to mess around with the latest AI stuff and see how it actually works when I plug it into real tools I already use every day. I’m having fun building React interfaces that feel smooth and responsive, writing Python scripts to handle the behind-the-scenes work, hooking everything up to AWS so I can spin up servers, storage, and APIs without much hassle, and — the part I enjoy most — creating actual Oracle databases that run in a real cloud environment and then controlling them straight from the webpage. A lot of the code here gets started or cleaned up with help from AI models, and I love experimenting with how far I can push them while still keeping things practical and useful. It’s not super polished or corporate; it’s just me testing ideas, breaking things, fixing them, and figuring out what’s possible when you mix current tech with the newest AI tricks.  I hope this site inspires you to do the same!
+               This site is basically my Lab — a place where I get to mess around with the latest AI foundation models and see how it actually works when I plug it into real tools I use every day. Being able to execute ideas quickly, create instant workflows and deployments, has ignited this new passion for creativity and technology.  I created this site using React.js on the frontend, Python scripts to handle the backend, and hooking everything up to AWS through boto3 so I can spin up servers. The part I enjoy most — creating actual Oracle databases that run in a real cloud environment and then controlling them straight from the webpage. 
+
               </p>
+
+              <p>A lot of the code here gets started or cleaned up with help from AI models, and I love experimenting with how far I can push them while still keeping things practical and useful. It’s not super polished; it’s just me testing ideas, breaking things, fixing them, and figuring out what’s possible when you mix current tech with the newest AI tricks. 
+
+              </p>
+
+              <p> I hope this site will inspire you to push your technical and creativity to the limits!</p>
 
           
               <p className="about-closer">
                 Want to see my work in action? The live demo on this site is actually controlling a real 
-                Oracle 19c database on AWS EC2. If that doesn't prove I know what I'm doing, I don't know what will.
+                Oracle 19c database on AWS EC2. If you have any suggestions or ideas I would love to hear from you!
               </p>
             </div>
           </div>
