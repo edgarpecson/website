@@ -76,7 +76,7 @@ function AboutPage({ onNavigateToHome }) {
         <div className="about-container">
           <div className="section-header">
             <h2 className="section-title">About Me</h2>
-            <p className="section-subtitle">30+ years evolving from reel-to-reel backups to AI automation</p>
+            <p className="section-subtitle">Welcome to My AI + AWS Laboratory</p>
           </div>
 
           <div className="about-picture-placeholder">
@@ -91,19 +91,11 @@ function AboutPage({ onNavigateToHome }) {
           <div className="about-content">
             <div className="about-text">
               <p className="about-intro">
-                Welcome to My AI + AWS Laboratory
+                
               </p>
               
               <p>
-               This website is my passion project—a dedicated laboratory for creative experimentation and hands-on exploration of modern full-stack technologies. Here, I actively test and refine techniques in React to build responsive, interactive interfaces; Python for backend scripting, automation, and orchestration; and AWS APIs and services for cloud infrastructure, compute, storage, and seamless integration. 
-              </p>
-
-              <p>
-                A central focus is the creation and management of real-world databases—particularly Oracle instances deployed in production-like environments on AWS EC2—allowing me to simulate realistic data scenarios, performance tuning, and operational workflows. Most importantly, the site enables direct, live control of these databases from the browser, providing a tangible demonstration of end-to-end connectivity, security considerations, and practical application. 
-
-              <p>
-                Every element you see here, much of it shaped and refined with AI assistance, represents an ongoing effort to push technical boundaries and explore what is possible when these tools are combined in creative ways. I hope these experiments inspire you to pursue the same sense of curiosity and possibilities!
-              </p>
+               This site is basically my Lab — a place where I get to mess around with the latest AI stuff and see how it actually works when I plug it into real tools I already use every day. I’m having fun building React interfaces that feel smooth and responsive, writing Python scripts to handle the behind-the-scenes work, hooking everything up to AWS so I can spin up servers, storage, and APIs without much hassle, and — the part I enjoy most — creating actual Oracle databases that run in a real cloud environment and then controlling them straight from the webpage. A lot of the code here gets started or cleaned up with help from AI models, and I love experimenting with how far I can push them while still keeping things practical and useful. It’s not super polished or corporate; it’s just me testing ideas, breaking things, fixing them, and figuring out what’s possible when you mix current tech with the newest AI tricks.  I hope this site inspires you to do the same!
               </p>
 
           
